@@ -1,0 +1,17 @@
+{
+  "name": "monorepo",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "npm run dev --prefix apps/web-next",
+    "build": "npm run build --prefix apps/web-next",
+    "start": "npm run start --prefix apps/web-next",
+    "lint": "npm run lint --prefix apps/web-next"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  },
+  "workspaces": [
+    "apps/web-next"
+  ]
+}

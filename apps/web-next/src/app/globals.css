@@ -1,0 +1,106 @@
+@import "tailwindcss";
+
+:root {
+  --background: 0 0% 100%;
+  --foreground: 20 14% 10%;
+
+  --primary: 25 95% 53%;
+  --primary-foreground: 0 0% 100%;
+
+  --secondary: 180 65% 45%;
+  --secondary-foreground: 0 0% 100%;
+
+  --accent: 38 92% 50%;
+  --accent-foreground: 0 0% 100%;
+
+  --destructive: 0 84% 60%;
+  --destructive-foreground: 0 0% 100%;
+
+  --muted: 25 20% 96%;
+  --muted-foreground: 25 8% 45%;
+
+  --card: 0 0% 100%;
+  --card-foreground: 20 14% 10%;
+
+  --popover: 0 0% 100%;
+  --popover-foreground: 20 14% 10%;
+
+  --border: 25 20% 88%;
+  --input: 25 20% 88%;
+  --ring: 25 95% 53%;
+
+  --radius: 0.75rem;
+}
+
+@theme inline {
+  --color-background: hsl(var(--background));
+  --color-foreground: hsl(var(--foreground));
+  --color-primary: hsl(var(--primary));
+  --color-primary-foreground: hsl(var(--primary-foreground));
+  --color-secondary: hsl(var(--secondary));
+  --color-secondary-foreground: hsl(var(--secondary-foreground));
+  --color-accent: hsl(var(--accent));
+  --color-accent-foreground: hsl(var(--accent-foreground));
+  --color-destructive: hsl(var(--destructive));
+  --color-destructive-foreground: hsl(var(--destructive-foreground));
+  --color-muted: hsl(var(--muted));
+  --color-muted-foreground: hsl(var(--muted-foreground));
+  --color-card: hsl(var(--card));
+  --color-card-foreground: hsl(var(--card-foreground));
+  --color-popover: hsl(var(--popover));
+  --color-popover-foreground: hsl(var(--popover-foreground));
+  --color-border: hsl(var(--border));
+  --color-input: hsl(var(--input));
+  --color-ring: hsl(var(--ring));
+
+  --radius-lg: var(--radius);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-sm: calc(var(--radius) - 4px);
+}
+
+/* --font-sans is provided by next/font (see app/layout.js) via a CSS
+   variable on <html>; it cascades down to body below. */
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: 20 14% 8%;
+    --foreground: 0 0% 95%;
+    --secondary: 180 65% 35%;
+    --accent: 38 92% 45%;
+    --muted: 25 15% 15%;
+    --muted-foreground: 25 8% 65%;
+    --card: 20 14% 10%;
+    --card-foreground: 0 0% 95%;
+    --popover: 20 14% 10%;
+    --popover-foreground: 0 0% 95%;
+    --border: 25 15% 20%;
+    --input: 25 15% 20%;
+  }
+}
+
+body {
+  font-family: var(--font-sans);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+.text-balance {
+  text-wrap: balance;
+}
+
+/* Slow "Ken Burns" drift applied to the active gallery slide only --
+   purely decorative, costs nothing beyond a CSS animation. */
+@keyframes gallery-zoom {
+  from {
+    transform: scale(1);
+  }
+  to {
+    transform: scale(1.08);
+  }
+}
+
+.animate-gallery-zoom {
+  animation: gallery-zoom 8s ease-in-out infinite alternate;
+}
