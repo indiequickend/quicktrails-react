@@ -156,83 +156,18 @@ function BuilderWorkspace() {
     };
 
     const handleDownloadPDF = async () => {
-        if (!previewRef.current) return;
         setIsExporting(true);
         try {
-            const [{ default: html2canvas }, { jsPDF }] = await Promise.all([
-                import('html2canvas-pro'),
-                import('jspdf'),
-            ]);
-
-            // A4 at 96 dpi = 794 × 1123 px. Clone the preview at this fixed width
-            // so the PDF is never squeezed regardless of the on-screen preview size.
-            const A4_PX = 794;
-            const clone = previewRef.current.cloneNode(true);
-            Object.assign(clone.style, {
-                width: A4_PX + 'px',
-                maxWidth: 'none',
-                position: 'fixed',
-                left: '-9999px',
-                top: '0',
-                zIndex: '-9999',
-                background: '#ffffff',
+            const { generateItineraryPDF } = await import('@/lib/pdf/generateItineraryPDF');
+            const pdf = await generateItineraryPDF({
+                tripTitle, durationText, totalPrice, heroImage,
+                days, inclusions, exclusions, terms,
+                activeLogoUrl, activeAgencyName,
             });
-            document.body.appendChild(clone);
-            clone.offsetHeight; // force layout
-
-            const avoidElements = clone.querySelectorAll('.avoid-break');
-            const parentRect = clone.getBoundingClientRect();
-            const avoidRects = Array.from(avoidElements).map(el => {
-                const rect = el.getBoundingClientRect();
-                return { top: rect.top - parentRect.top, bottom: rect.bottom - parentRect.top };
-            });
-            const totalCssHeight = clone.offsetHeight;
-
-            const canvas = await html2canvas(clone, {
-                scale: 2,
-                useCORS: true,
-                logging: false,
-                backgroundColor: '#ffffff',
-                width: A4_PX,
-                windowWidth: A4_PX,
-            });
-            document.body.removeChild(clone);
-
-            const imgData = canvas.toDataURL('image/png');
-            const pdf = new jsPDF('p', 'mm', 'a4');
-            const pdfWidth = pdf.internal.pageSize.getWidth();   // 210 mm
-            const pdfHeight = pdf.internal.pageSize.getHeight(); // 297 mm
-            const cssScale = pdfWidth / A4_PX;                   // mm per px
-            const pageHeightInCssPx = pdfHeight / cssScale;
-            const imgHeightInMm = (canvas.height * pdfWidth) / canvas.width;
-
-            let currentCssY = 0;
-            let isFirstPage = true;
-            while (currentCssY < totalCssHeight) {
-                let nextCssY = currentCssY + pageHeightInCssPx;
-                if (nextCssY < totalCssHeight) {
-                    for (const rect of avoidRects) {
-                        if (nextCssY > rect.top && nextCssY < rect.bottom) {
-                            const safeBreak = rect.top - 15;
-                            nextCssY = safeBreak <= currentCssY ? currentCssY + pageHeightInCssPx : safeBreak;
-                            break;
-                        }
-                    }
-                }
-                if (!isFirstPage) pdf.addPage();
-                isFirstPage = false;
-                pdf.addImage(imgData, 'PNG', 0, -(currentCssY * cssScale), pdfWidth, imgHeightInMm);
-                const printHeightMm = (nextCssY - currentCssY) * cssScale;
-                if (printHeightMm < pdfHeight) {
-                    pdf.setFillColor(255, 255, 255);
-                    pdf.rect(0, printHeightMm, pdfWidth, pdfHeight - printHeightMm, 'F');
-                }
-                currentCssY = nextCssY;
-            }
-            const fileName = tripTitle ? `${durationText}_${tripTitle.replace(/\s+/g, '_')}_QuickTrails.pdf` : 'QuickTrails_Itinerary.pdf';
-            pdf.save(fileName);
-        } catch (error) {
-            console.error('PDF generation error:', error);
+            const safeName = (tripTitle || 'Itinerary').replace(/\s+/g, '_');
+            pdf.save(`${durationText || 'Itinerary'}_${safeName}_QuickTrails.pdf`);
+        } catch (err) {
+            console.error('PDF generation error:', err);
             alert('Error generating PDF. Please check the console.');
         } finally {
             setIsExporting(false);
