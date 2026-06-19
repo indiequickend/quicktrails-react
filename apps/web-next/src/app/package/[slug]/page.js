@@ -94,12 +94,12 @@ export default async function PackageDetailPage({ params }) {
         <div className="absolute inset-0 bg-black/30" />
 
         {/* Logo + company name — top left */}
-        <div className="absolute top-24 left-8 sm:left-16 flex items-center gap-4 z-10">
+        {/* <div className="absolute top-24 left-8 sm:left-16 flex items-center gap-4 z-10">
           {logoUrl ? (
             <img src={logoUrl} alt={companyName} className="h-10 w-auto object-contain drop-shadow-md" />
           ) : null}
           <span className="font-serif tracking-widest text-lg font-bold text-white drop-shadow-md">{companyName}</span>
-        </div>
+        </div> */}
 
         {/* Trip info — bottom left */}
         <div className="absolute bottom-12 left-8 sm:left-16 right-8 sm:right-16 z-10">
