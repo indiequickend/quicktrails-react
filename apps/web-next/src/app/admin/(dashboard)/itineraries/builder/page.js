@@ -163,23 +163,50 @@ function BuilderWorkspace() {
                 import('html2canvas-pro'),
                 import('jspdf'),
             ]);
-            const previewEl = previewRef.current;
-            const canvas = await html2canvas(previewEl, { scale: 2, useCORS: true, logging: false, backgroundColor: '#ffffff' });
-            const imgData = canvas.toDataURL('image/png');
-            const pdf = new jsPDF('p', 'mm', 'a4');
-            const pdfWidth = pdf.internal.pageSize.getWidth();
-            const pdfHeight = pdf.internal.pageSize.getHeight();
-            const cssScale = pdfWidth / previewEl.offsetWidth;
-            const pageHeightInCssPx = pdfHeight / cssScale;
-            const imgHeightInMm = (canvas.height * pdfWidth) / canvas.width;
-            const avoidElements = previewEl.querySelectorAll('.avoid-break');
-            const parentRect = previewEl.getBoundingClientRect();
+
+            // A4 at 96 dpi = 794 × 1123 px. Clone the preview at this fixed width
+            // so the PDF is never squeezed regardless of the on-screen preview size.
+            const A4_PX = 794;
+            const clone = previewRef.current.cloneNode(true);
+            Object.assign(clone.style, {
+                width: A4_PX + 'px',
+                maxWidth: 'none',
+                position: 'fixed',
+                left: '-9999px',
+                top: '0',
+                zIndex: '-9999',
+                background: '#ffffff',
+            });
+            document.body.appendChild(clone);
+            clone.offsetHeight; // force layout
+
+            const avoidElements = clone.querySelectorAll('.avoid-break');
+            const parentRect = clone.getBoundingClientRect();
             const avoidRects = Array.from(avoidElements).map(el => {
                 const rect = el.getBoundingClientRect();
                 return { top: rect.top - parentRect.top, bottom: rect.bottom - parentRect.top };
             });
+            const totalCssHeight = clone.offsetHeight;
+
+            const canvas = await html2canvas(clone, {
+                scale: 2,
+                useCORS: true,
+                logging: false,
+                backgroundColor: '#ffffff',
+                width: A4_PX,
+                windowWidth: A4_PX,
+            });
+            document.body.removeChild(clone);
+
+            const imgData = canvas.toDataURL('image/png');
+            const pdf = new jsPDF('p', 'mm', 'a4');
+            const pdfWidth = pdf.internal.pageSize.getWidth();   // 210 mm
+            const pdfHeight = pdf.internal.pageSize.getHeight(); // 297 mm
+            const cssScale = pdfWidth / A4_PX;                   // mm per px
+            const pageHeightInCssPx = pdfHeight / cssScale;
+            const imgHeightInMm = (canvas.height * pdfWidth) / canvas.width;
+
             let currentCssY = 0;
-            const totalCssHeight = previewEl.offsetHeight;
             let isFirstPage = true;
             while (currentCssY < totalCssHeight) {
                 let nextCssY = currentCssY + pageHeightInCssPx;
