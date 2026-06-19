@@ -2,23 +2,33 @@
 
 import { useRef, useState } from "react";
 import Image from "next/image";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, Images, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-// All slides render in the DOM up front (just translated off-screen via
-// CSS), not mounted/unmounted on navigation -- so every property photo is
-// still present in the server-rendered HTML for image search/AI crawlers,
-// even though only one is visible at a time client-side.
 export default function PropertyGallery({ images, name }) {
-  const [index, setIndex] = useState(0);
+  const [activeIndex, setActiveIndex] = useState(0);
+  const [lightboxOpen, setLightboxOpen] = useState(false);
   const touchStartX = useRef(null);
+  const lightboxRef = useRef(null);
 
   if (!images || images.length === 0) return null;
 
   const count = images.length;
-  const goTo = (i) => setIndex((i + count) % count);
-  const next = () => goTo(index + 1);
-  const prev = () => goTo(index - 1);
+  const goTo = (i) => setActiveIndex((i + count) % count);
+  const next = () => goTo(activeIndex + 1);
+  const prev = () => goTo(activeIndex - 1);
+
+  function openLightbox(i) {
+    setActiveIndex(i);
+    setLightboxOpen(true);
+    setTimeout(() => lightboxRef.current?.focus(), 0);
+  }
+
+  function handleKeyDown(e) {
+    if (e.key === "ArrowRight") next();
+    if (e.key === "ArrowLeft") prev();
+    if (e.key === "Escape") setLightboxOpen(false);
+  }
 
   function handleTouchStart(e) {
     touchStartX.current = e.touches[0].clientX;
@@ -27,108 +37,140 @@ export default function PropertyGallery({ images, name }) {
   function handleTouchEnd(e) {
     if (touchStartX.current === null) return;
     const delta = e.changedTouches[0].clientX - touchStartX.current;
-    if (Math.abs(delta) > 40) {
-      delta < 0 ? next() : prev();
-    }
+    if (Math.abs(delta) > 40) delta < 0 ? next() : prev();
     touchStartX.current = null;
   }
 
-  function handleKeyDown(e) {
-    if (e.key === "ArrowRight") next();
-    if (e.key === "ArrowLeft") prev();
-  }
-
   return (
-    <div className="mb-12">
+    <div className="mb-10">
+
+      {/* ── Hero image ─────────────────────────────────────────── */}
       <div
-        className="relative h-72 sm:h-96 md:h-[34rem] rounded-3xl overflow-hidden bg-muted outline-none shadow-2xl ring-1 ring-black/5 group"
-        tabIndex={0}
-        role="group"
-        aria-label={`${name} photos`}
-        onKeyDown={handleKeyDown}
+        className="relative w-full h-72 sm:h-96 md:h-[420px] rounded-2xl overflow-hidden bg-muted cursor-pointer group"
+        onClick={() => openLightbox(activeIndex)}
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
       >
-        <div
-          className="flex h-full transition-transform duration-700 ease-in-out"
-          style={{ transform: `translateX(-${index * 100}%)` }}
-        >
-          {images.map((img, idx) => (
-            <div key={idx} className="relative h-full w-full flex-shrink-0 overflow-hidden">
-              <Image
-                src={img.url}
-                alt={img.alt || `${name} - photo ${idx + 1}`}
-                fill
-                priority={idx === 0}
-                sizes="(max-width: 768px) 100vw, 1024px"
-                className={cn("object-cover", idx === index && "animate-gallery-zoom")}
-              />
-            </div>
-          ))}
-        </div>
+        <Image
+          key={activeIndex}
+          src={images[activeIndex].url}
+          alt={images[activeIndex].alt || `${name} — photo ${activeIndex + 1}`}
+          fill
+          priority
+          sizes="(max-width: 768px) 100vw, (max-width: 1280px) 75vw, 900px"
+          className="object-cover transition-transform duration-500 group-hover:scale-[1.02]"
+        />
 
-        {/* Permanent soft scrim so controls stay legible over any photo */}
-        <div className="pointer-events-none absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-black/35 to-transparent" />
-        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-black/45 to-transparent" />
+        {/* Subtle bottom scrim */}
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/40 to-transparent" />
 
+        {/* Photo count badge */}
+        {count > 1 && (
+          <button
+            onClick={(e) => { e.stopPropagation(); openLightbox(activeIndex); }}
+            className="absolute bottom-4 right-4 flex items-center gap-1.5 bg-black/50 backdrop-blur-sm text-white text-xs font-medium px-3 py-1.5 rounded-full hover:bg-black/70 transition-colors"
+          >
+            <Images className="w-3.5 h-3.5" />
+            View all {count} photos
+          </button>
+        )}
+
+        {/* Prev / next arrows (desktop only) */}
         {count > 1 && (
           <>
             <button
-              type="button"
-              onClick={prev}
+              onClick={(e) => { e.stopPropagation(); prev(); }}
               aria-label="Previous photo"
-              className="absolute left-4 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full bg-white/90 hover:bg-white text-slate-900 shadow-lg flex items-center justify-center transition-all duration-200 hover:scale-110"
+              className="hidden md:flex absolute left-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-white/85 hover:bg-white text-slate-900 items-center justify-center shadow transition-all opacity-0 group-hover:opacity-100"
             >
-              <ChevronLeft className="w-5 h-5" />
+              <ChevronLeft className="w-4 h-4" />
             </button>
             <button
-              type="button"
-              onClick={next}
+              onClick={(e) => { e.stopPropagation(); next(); }}
               aria-label="Next photo"
-              className="absolute right-4 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full bg-white/90 hover:bg-white text-slate-900 shadow-lg flex items-center justify-center transition-all duration-200 hover:scale-110"
+              className="hidden md:flex absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-white/85 hover:bg-white text-slate-900 items-center justify-center shadow transition-all opacity-0 group-hover:opacity-100"
             >
-              <ChevronRight className="w-5 h-5" />
+              <ChevronRight className="w-4 h-4" />
             </button>
-
-            <div className="absolute bottom-5 left-1/2 -translate-x-1/2 flex items-center gap-2 px-3 py-2 rounded-full bg-black/25 backdrop-blur-sm">
-              {images.map((_, idx) => (
-                <button
-                  key={idx}
-                  type="button"
-                  onClick={() => goTo(idx)}
-                  aria-label={`Go to photo ${idx + 1}`}
-                  className={cn(
-                    "h-2 rounded-full transition-all duration-300",
-                    idx === index ? "w-7 bg-white shadow-sm" : "w-2 bg-white/50 hover:bg-white/80"
-                  )}
-                />
-              ))}
-            </div>
-
-            <div className="absolute top-4 right-4 bg-black/30 backdrop-blur-sm text-white text-sm font-medium px-3 py-1 rounded-full">
-              {index + 1} / {count}
-            </div>
           </>
         )}
       </div>
 
+      {/* ── Thumbnail strip ────────────────────────────────────── */}
       {count > 1 && (
-        <div className="relative mt-4">
-          <div className="flex gap-3 overflow-x-auto pb-1 scroll-smooth [scrollbar-width:thin]">
+        <div className="flex gap-2 mt-2 overflow-x-auto pb-1 [scrollbar-width:none]">
+          {images.map((img, idx) => (
+            <button
+              key={idx}
+              onClick={() => setActiveIndex(idx)}
+              aria-label={`View photo ${idx + 1}`}
+              className={cn(
+                "relative h-16 w-24 md:h-20 md:w-28 flex-shrink-0 rounded-xl overflow-hidden ring-2 transition-all duration-200",
+                idx === activeIndex
+                  ? "ring-primary shadow-md"
+                  : "ring-transparent opacity-55 hover:opacity-90 hover:ring-border"
+              )}
+            >
+              <Image src={img.url} alt="" fill sizes="112px" className="object-cover" />
+            </button>
+          ))}
+        </div>
+      )}
+
+      {/* ── Lightbox ───────────────────────────────────────────── */}
+      {lightboxOpen && (
+        <div
+          ref={lightboxRef}
+          tabIndex={-1}
+          className="fixed inset-0 z-50 bg-black/95 flex flex-col outline-none"
+          onKeyDown={handleKeyDown}
+          onTouchStart={handleTouchStart}
+          onTouchEnd={handleTouchEnd}
+        >
+          <div className="flex items-center justify-between px-5 py-4 shrink-0">
+            <span className="text-white/50 text-sm font-medium">{activeIndex + 1} / {count}</span>
+            <button
+              onClick={() => setLightboxOpen(false)}
+              aria-label="Close"
+              className="text-white/60 hover:text-white transition-colors"
+            >
+              <X className="w-6 h-6" />
+            </button>
+          </div>
+
+          <div className="flex-1 relative min-h-0">
+            <Image
+              key={activeIndex}
+              src={images[activeIndex].url}
+              alt={images[activeIndex].alt || `${name} — photo ${activeIndex + 1}`}
+              fill
+              sizes="100vw"
+              className="object-contain"
+            />
+          </div>
+
+          {count > 1 && (
+            <>
+              <button onClick={prev} aria-label="Previous" className="absolute left-4 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-colors">
+                <ChevronLeft className="w-5 h-5" />
+              </button>
+              <button onClick={next} aria-label="Next" className="absolute right-4 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-colors">
+                <ChevronRight className="w-5 h-5" />
+              </button>
+            </>
+          )}
+
+          <div className="flex gap-2 px-5 py-4 overflow-x-auto shrink-0 [scrollbar-width:none]">
             {images.map((img, idx) => (
               <button
                 key={idx}
-                type="button"
-                onClick={() => goTo(idx)}
-                aria-label={`View photo ${idx + 1}`}
+                onClick={() => setActiveIndex(idx)}
                 className={cn(
-                  "relative h-20 w-28 flex-shrink-0 rounded-xl overflow-hidden ring-2 transition-all duration-200",
-                  idx === index
-                    ? "ring-primary shadow-md scale-[1.02]"
-                    : "ring-transparent opacity-60 hover:opacity-100 hover:scale-[1.02]"
+                  "relative h-14 w-20 flex-shrink-0 rounded-lg overflow-hidden ring-2 transition-all duration-200",
+                  idx === activeIndex ? "ring-white" : "ring-transparent opacity-40 hover:opacity-75"
                 )}
               >
-                <Image src={img.url} alt="" fill sizes="112px" className="object-cover" />
+                <Image src={img.url} alt="" fill sizes="80px" className="object-cover" />
               </button>
             ))}
           </div>
