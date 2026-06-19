@@ -1,6 +1,7 @@
 import Link from "next/link";
-import { Plane, Mail, Phone, MapPin } from "lucide-react";
+import { Mail, Phone, MapPin } from "lucide-react";
 import Image from "next/image";
+import { getBrandSettings } from "@/lib/actions/brand-settings";
 
 // lucide-react dropped brand/logo icons (trademark reasons) -- small inline
 // SVGs instead of pulling in a separate brand-icon package for three links.
@@ -30,8 +31,10 @@ function TwitterIcon(props) {
   );
 }
 
-export default function Footer() {
+export default async function Footer() {
   const currentYear = new Date().getFullYear();
+  const brandSettings = await getBrandSettings().catch(() => null);
+  const logoUrl = brandSettings?.primaryLogoUrl || null;
 
   return (
     <footer className="bg-slate-950 text-slate-100">
@@ -39,7 +42,11 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
           <div>
             <div className="flex items-center space-x-2 mb-4">
-              <Image src="/quicktrails-logo.png" alt="QuickTrails Logo" width={175} height={75} />
+              {logoUrl ? (
+                <img src={logoUrl} alt="QuickTrails Logo" className="h-[50px] w-auto object-contain" />
+              ) : (
+                <Image src="/quicktrails-logo.png" alt="QuickTrails Logo" width={175} height={75} />
+              )}
             </div>
             <p className="text-slate-400 leading-relaxed mb-4">
               Discover handpicked properties and curated travel experiences across India. Your journey begins here.

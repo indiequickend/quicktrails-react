@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { LayoutDashboard, Building2, Package as PackageIcon, Inbox, LogOut } from "lucide-react";
+import { LayoutDashboard, Building2, Package as PackageIcon, Inbox, LogOut, Map, BookOpen, Settings2 } from "lucide-react";
 import { logout } from "@/lib/actions/auth";
 
 // Everything under /admin reads the session cookie and hits MongoDB per
@@ -10,8 +10,10 @@ export const dynamic = "force-dynamic";
 const navLinks = [
   { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
   { href: "/admin/properties", label: "Properties", icon: Building2 },
-  { href: "/admin/packages", label: "Packages", icon: PackageIcon },
+  { href: "/admin/itineraries", label: "Itineraries", icon: Map },
+  { href: "/admin/catalog", label: "Catalog", icon: BookOpen },
   { href: "/admin/bookings", label: "Bookings", icon: Inbox },
+  { href: "/admin/brand-settings", label: "Brand Settings", icon: Settings2 },
 ];
 
 export default function AdminLayout({ children }) {

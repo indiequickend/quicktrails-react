@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Menu, X, Plane } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import Image from "next/image";
 
 const navLinks = [
@@ -22,7 +22,14 @@ const navLinks = [
 export default function Header({ transparent = false }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [brandLogoUrl, setBrandLogoUrl] = useState(null);
   const pathname = usePathname();
+
+  useEffect(() => {
+    fetch('/api/brand-logo').then(r => r.json()).then(data => {
+      if (data.logoUrl) setBrandLogoUrl(data.logoUrl);
+    }).catch(() => {});
+  }, []);
 
   // Close the mobile menu on navigation by deriving it during render
   // (the "adjust state during render" pattern) instead of an effect.
@@ -51,8 +58,11 @@ export default function Header({ transparent = false }) {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-20">
           <Link href="/" className="flex items-center space-x-2 group">
-            <Image src="/quicktrails-logo.png" alt="QuickTrails Logo" width={175} height={75} />
-
+            {brandLogoUrl ? (
+              <img src={brandLogoUrl} alt="QuickTrails Logo" className="h-[50px] w-auto object-contain" />
+            ) : (
+              <Image src="/quicktrails-logo.png" alt="QuickTrails Logo" width={175} height={75} />
+            )}
           </Link>
 
           <nav className="hidden md:flex items-center space-x-1">

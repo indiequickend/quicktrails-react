@@ -4,6 +4,8 @@ import Footer from "@/components/Footer";
 import Breadcrumbs from "@/components/Breadcrumbs";
 import BookingForm from "@/components/BookingForm";
 
+export const dynamic = "force-dynamic";
+
 export const metadata = {
   title: "Contact Us",
   description: "Get in touch with QuickTrails to plan your next trip, ask about a property, or request a custom tour package.",

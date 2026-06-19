@@ -4,9 +4,10 @@ import { Button } from "@/components/ui/Button";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import PropertyCard from "@/components/PropertyCard";
-import PackageCard from "@/components/PackageCard";
+import ItineraryCard from "@/components/ItineraryCard";
 import JsonLd from "@/components/JsonLd";
-import { getProperties, getPackages } from "@/lib/data";
+import { getProperties } from "@/lib/data";
+import { getPublicItineraries } from "@/lib/actions/itineraries";
 import { SITE_URL, SITE_NAME, SITE_DESCRIPTION } from "@/lib/constants";
 
 // Regenerate this page in the background at most once an hour so new
@@ -29,7 +30,7 @@ const features = [
 export default async function HomePage() {
   const [properties, packages] = await Promise.all([
     getProperties({ limit: 4, sort: "-rating" }),
-    getPackages({ limit: 4 }),
+    getPublicItineraries(4),
   ]);
 
   const organizationSchema = {
@@ -152,8 +153,8 @@ export default async function HomePage() {
 
           {packages.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-              {packages.map((pkg) => (
-                <PackageCard key={pkg._id} pkg={pkg} />
+              {packages.map((itinerary) => (
+                <ItineraryCard key={itinerary._id} itinerary={itinerary} />
               ))}
             </div>
           ) : (

@@ -1,81 +1,82 @@
 import { notFound } from "next/navigation";
-import Image from "next/image";
-import { MapPin, Calendar, Sparkles } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import PackageCard from "@/components/PackageCard";
+import ItineraryCard from "@/components/ItineraryCard";
 import Breadcrumbs from "@/components/Breadcrumbs";
 import BookingForm from "@/components/BookingForm";
 import JsonLd from "@/components/JsonLd";
-import { getPackageBySlug, getAllSlugs } from "@/lib/data";
+import { getBrandSettings } from "@/lib/actions/brand-settings";
+import { getPublicItineraries } from "@/lib/actions/itineraries";
 import dbConnect from "@/lib/mongodb";
-import Package from "@/models/Package";
-import { formatINR } from "@/lib/utils";
+import Itinerary from "@/models/Itinerary";
 import { SITE_URL } from "@/lib/constants";
 
 export const revalidate = 3600;
 
 export async function generateStaticParams() {
-  const { packages } = await getAllSlugs();
-  return packages.map((p) => ({ slug: p.slug }));
+  const itineraries = await getPublicItineraries(200);
+  return itineraries.filter((i) => i.slug).map((i) => ({ slug: i.slug }));
+}
+
+async function getItinerary(slug) {
+  try {
+    await dbConnect();
+    const doc = await Itinerary.findOne({ slug }).lean();
+    if (!doc || doc.status !== 'FINALIZED' || doc.b2bDetails?.isB2B) return null;
+    return JSON.parse(JSON.stringify(doc));
+  } catch {
+    return null;
+  }
+}
+
+async function getRelatedItineraries(currentSlug, limit = 3) {
+  try {
+    await dbConnect();
+    const docs = await Itinerary.find({ slug: { $ne: currentSlug }, 'b2bDetails.isB2B': { $ne: true } })
+      .sort({ updatedAt: -1 })
+      .limit(limit)
+      .lean();
+    return JSON.parse(JSON.stringify(docs));
+  } catch {
+    return [];
+  }
 }
 
 export async function generateMetadata({ params }) {
   const { slug } = await params;
-  const pkg = await getPackageBySlug(slug);
-  if (!pkg) return {};
-
-  const description =
-    pkg.description ||
-    `Book ${pkg.name} - ${pkg.duration} days tour package to ${pkg.destination}. Curated itinerary with all amenities included.`;
-
+  const itinerary = await getItinerary(slug);
+  if (!itinerary) return {};
   return {
-    title: pkg.name,
-    description,
-    alternates: { canonical: `/package/${pkg.slug}` },
+    title: itinerary.tripTitle,
+    description: `${itinerary.durationText} tour package — ${itinerary.tripTitle}. Curated by QuickTrails.`,
+    alternates: { canonical: `/package/${slug}` },
     openGraph: {
-      title: pkg.name,
-      description,
-      images: pkg.heroImage?.url ? [pkg.heroImage.url] : undefined,
+      title: itinerary.tripTitle,
+      images: itinerary.heroGallery?.[0] ? [itinerary.heroGallery[0]] : undefined,
     },
   };
 }
 
-async function getRelatedByDestination(pkg, limit = 4) {
-  await dbConnect();
-  const docs = await Package.find({ _id: { $ne: pkg._id }, destination: pkg.destination })
-    .limit(limit)
-    .lean();
-  return JSON.parse(JSON.stringify(docs));
-}
-
 export default async function PackageDetailPage({ params }) {
   const { slug } = await params;
-  const pkg = await getPackageBySlug(slug);
-  if (!pkg) notFound();
+  const [itinerary, brandSettings] = await Promise.all([
+    getItinerary(slug),
+    getBrandSettings().catch(() => null),
+  ]);
 
-  const relatedPackages = await getRelatedByDestination(pkg);
+  if (!itinerary) notFound();
 
-  const itinerary = pkg.itinerary || [];
-  const amenities = pkg.includedAmenities || [];
-  const highlights = pkg.highlights || [];
+  const relatedItineraries = await getRelatedItineraries(slug);
+  const heroImage = itinerary.heroGallery?.[0] || null;
+  const logoUrl = brandSettings?.primaryLogoUrl || null;
+  const companyName = brandSettings?.companyName || 'QuickTrails';
 
   const tourSchema = {
     "@context": "https://schema.org",
     "@type": "TouristTrip",
-    name: pkg.name,
-    description: pkg.description,
-    touristType: "Leisure",
-    itinerary: itinerary.map((day) => ({
-      "@type": "TouristAttraction",
-      name: day.title,
-      description: day.description,
-    })),
-    offers: {
-      "@type": "Offer",
-      price: pkg.price,
-      priceCurrency: "INR",
-    },
+    name: itinerary.tripTitle,
+    description: `${itinerary.durationText} tour package`,
+    offers: itinerary.totalPrice ? { "@type": "Offer", name: itinerary.totalPrice } : undefined,
   };
 
   return (
@@ -83,132 +84,179 @@ export default async function PackageDetailPage({ params }) {
       <JsonLd data={tourSchema} />
       <Header />
 
-      <div className="pt-32 pb-24 bg-background">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <Breadcrumbs
-            items={[
-              { name: "Home", path: "/" },
-              { name: "Tour Packages", path: "/tour-packages" },
-              { name: pkg.name, path: `/package/${pkg.slug}` },
-            ]}
-          />
+      {/* Hero Section — matches builder preview */}
+      <div className="relative w-full h-[80vh] min-h-[500px] bg-gray-900 overflow-hidden">
+        {heroImage ? (
+          <img src={heroImage} alt={itinerary.tripTitle} className="absolute inset-0 w-full h-full object-cover opacity-80" />
+        ) : (
+          <div className="absolute inset-0 bg-gradient-to-br from-slate-900 to-slate-800" />
+        )}
+        <div className="absolute inset-0 bg-black/30" />
 
-          <div className="relative h-96 rounded-2xl overflow-hidden mb-12">
-            {pkg.heroImage?.url && (
-              <Image
-                src={pkg.heroImage.url}
-                alt={pkg.name}
-                fill
-                priority
-                sizes="100vw"
-                className="object-cover"
-              />
+        {/* Logo + company name — top left */}
+        <div className="absolute top-24 left-8 sm:left-16 flex items-center gap-4 z-10">
+          {logoUrl ? (
+            <img src={logoUrl} alt={companyName} className="h-10 w-auto object-contain drop-shadow-md" />
+          ) : null}
+          <span className="font-serif tracking-widest text-lg font-bold text-white drop-shadow-md">{companyName}</span>
+        </div>
+
+        {/* Trip info — bottom left */}
+        <div className="absolute bottom-12 left-8 sm:left-16 right-8 sm:right-16 z-10">
+          <div className="max-w-3xl">
+            <Breadcrumbs
+              items={[{ name: "Home", path: "/" }, { name: "Tour Packages", path: "/tour-packages" }, { name: itinerary.tripTitle, path: `/package/${slug}` }]}
+            />
+            <p className="text-amber-400 font-bold uppercase tracking-widest text-sm mb-3 mt-4 flex items-center gap-2">
+              <span className="w-8 h-0.5 bg-amber-400 inline-block"></span>
+              {itinerary.durationText || ''}
+            </p>
+            <h1 className="text-4xl sm:text-5xl font-serif font-bold text-white leading-tight drop-shadow-xl mb-4">
+              {itinerary.tripTitle}
+            </h1>
+            {itinerary.totalPrice && (
+              <p className="text-2xl text-white font-bold drop-shadow-md">{itinerary.totalPrice}</p>
             )}
-            <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 to-transparent" />
-            <div className="absolute bottom-8 left-8 text-white">
-              <h1 className="text-4xl md:text-5xl font-bold mb-3 text-balance" style={{ letterSpacing: "-0.02em" }}>
-                {pkg.name}
-              </h1>
-              <div className="flex flex-wrap gap-4 text-lg">
-                <div className="flex items-center">
-                  <MapPin className="w-5 h-5 mr-2" />
-                  {pkg.destination}
-                </div>
-                <div className="flex items-center">
-                  <Calendar className="w-5 h-5 mr-2" />
-                  {pkg.duration} days
-                </div>
-              </div>
-            </div>
           </div>
+        </div>
+      </div>
 
+      {/* Main Content */}
+      <div className="bg-background">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
+
+            {/* Left: Itinerary content */}
             <div className="lg:col-span-2">
-              {pkg.description && (
-                <div className="mb-8">
-                  <h2 className="text-2xl font-semibold mb-4">About this package</h2>
-                  <p className="text-muted-foreground leading-relaxed">{pkg.description}</p>
-                </div>
-              )}
 
-              {highlights.length > 0 && (
-                <div className="mb-8">
-                  <h2 className="text-2xl font-semibold mb-4">Package highlights</h2>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {highlights.map((highlight, idx) => (
-                      <div key={idx} className="flex items-start bg-muted rounded-xl p-4">
-                        <Sparkles className="w-5 h-5 text-accent mr-3 mt-0.5 flex-shrink-0" />
-                        <span>{highlight}</span>
+              {/* Day-by-day schedule */}
+              {itinerary.days?.length > 0 && (
+                <section className="mb-16">
+                  <h2 className="text-3xl font-serif font-bold text-foreground mb-10">Day-by-Day Itinerary</h2>
+                  <div className="space-y-12">
+                    {itinerary.days.map((day, index) => (
+                      <div key={index} className="flex gap-6 sm:gap-10">
+                        <div className="flex flex-col items-center">
+                          <div className="w-10 h-10 rounded-full bg-gray-900 text-white flex items-center justify-center font-bold text-sm shrink-0 shadow-sm">
+                            {day.dayNumber}
+                          </div>
+                          {index !== itinerary.days.length - 1 && (
+                            <div className="w-0.5 flex-1 bg-border mt-4 min-h-[2rem]"></div>
+                          )}
+                        </div>
+                        <div className="pt-1 w-full pb-4">
+                          <h3 className="text-2xl font-serif font-bold text-foreground mb-3">
+                            {day.dayTitle || `Day ${day.dayNumber}`}
+                          </h3>
+                          {day.dayDescription && (
+                            <p className="text-muted-foreground text-sm leading-relaxed italic border-l-2 border-amber-400 pl-4 py-1 bg-amber-50/50 mb-6 rounded-r">
+                              {day.dayDescription}
+                            </p>
+                          )}
+                          {day.activities?.length > 0 && (
+                            <div className="space-y-6 mt-4">
+                              {day.activities.map((act, ai) => (
+                                <div key={ai} className="flex flex-col sm:flex-row gap-5 p-5 border border-border rounded-xl bg-card shadow-sm">
+                                  {act.imageUrl && (
+                                    <div className="w-full sm:w-44 h-28 shrink-0 rounded-lg overflow-hidden bg-muted">
+                                      <img src={act.imageUrl} alt={act.title} className="w-full h-full object-cover" />
+                                    </div>
+                                  )}
+                                  <div className="flex-grow">
+                                    <h4 className="font-bold text-lg text-foreground mb-1">{act.title}</h4>
+                                    {act.tags?.length > 0 && (
+                                      <div className="flex flex-wrap gap-2 mb-2">
+                                        {act.tags.map((tag, ti) => (
+                                          <span key={ti} className="text-[10px] font-bold tracking-wider text-amber-700 bg-amber-100 px-2 py-0.5 rounded uppercase">{tag}</span>
+                                        ))}
+                                      </div>
+                                    )}
+                                    {act.description && (
+                                      <p className="text-sm text-muted-foreground leading-relaxed">{act.description}</p>
+                                    )}
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                        </div>
                       </div>
                     ))}
                   </div>
-                </div>
+                </section>
               )}
 
-              {itinerary.length > 0 && (
-                <div className="mb-8">
-                  <h2 className="text-2xl font-semibold mb-6">Day-by-day itinerary</h2>
-                  <div className="space-y-4">
-                    {itinerary.map((day) => (
-                      <div key={day.day} className="flex gap-4">
-                        <div className="w-10 h-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-semibold flex-shrink-0">
-                          {day.day}
-                        </div>
-                        <div>
-                          <h3 className="font-semibold mb-1">{day.title}</h3>
-                          <p className="text-muted-foreground text-sm">{day.description}</p>
-                        </div>
+              {/* Inclusions & Exclusions */}
+              {(itinerary.inclusions?.length > 0 || itinerary.exclusions?.length > 0) && (
+                <section className="mb-16 pt-8 border-t border-border">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+                    {itinerary.inclusions?.length > 0 && (
+                      <div>
+                        <h3 className="text-2xl font-serif font-bold text-foreground mb-5 flex items-center gap-2">
+                          <span className="text-green-600">✓</span> Inclusions
+                        </h3>
+                        <ul className="space-y-3">
+                          {itinerary.inclusions.map((item, idx) => (
+                            <li key={idx} className="flex items-start gap-3 text-sm text-foreground">
+                              <span className="text-green-500 mt-0.5 shrink-0 text-[10px]">✦</span>
+                              <span>{item}</span>
+                            </li>
+                          ))}
+                        </ul>
                       </div>
-                    ))}
+                    )}
+                    {itinerary.exclusions?.length > 0 && (
+                      <div>
+                        <h3 className="text-2xl font-serif font-bold text-foreground mb-5 flex items-center gap-2">
+                          <span className="text-red-600">✗</span> Exclusions
+                        </h3>
+                        <ul className="space-y-3">
+                          {itinerary.exclusions.map((item, idx) => (
+                            <li key={idx} className="flex items-start gap-3 text-sm text-muted-foreground">
+                              <span className="text-red-400 mt-0.5 shrink-0 text-[10px]">✦</span>
+                              <span>{item}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
                   </div>
-                </div>
+                </section>
               )}
 
-              {amenities.length > 0 && (
-                <div className="mb-8">
-                  <h2 className="text-2xl font-semibold mb-4">What&apos;s included</h2>
-                  <div className="bg-muted rounded-xl p-6">
-                    <ul className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                      {amenities.map((amenity) => (
-                        <li key={amenity} className="flex items-center">
-                          <div className="w-2 h-2 bg-primary rounded-full mr-3" />
-                          <span>{amenity}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                </div>
+              {/* Terms & Conditions */}
+              {itinerary.terms && itinerary.terms.trim() !== '' && (
+                <section className="mb-16 pt-8 border-t border-border">
+                  <h3 className="text-2xl font-serif font-bold text-foreground mb-6">Terms & Conditions</h3>
+                  <div
+                    className="text-muted-foreground leading-relaxed space-y-3 text-sm [&>ul]:list-disc [&>ul]:ml-4 [&>ol]:list-decimal [&>ol]:ml-4 [&>p]:mb-2 [&_strong]:font-bold [&_strong]:text-foreground [&_b]:font-bold [&_b]:text-foreground"
+                    dangerouslySetInnerHTML={{ __html: itinerary.terms }}
+                  />
+                </section>
               )}
-
-              <div className="bg-card border border-border rounded-2xl p-6">
-                <h2 className="text-2xl font-semibold mb-4">Pricing breakdown</h2>
-                <div className="flex justify-between items-center pb-3 border-b border-border">
-                  <span className="text-muted-foreground">Package price (per person)</span>
-                  <span className="text-xl font-semibold">{formatINR(pkg.price)}</span>
-                </div>
-                <p className="text-sm text-muted-foreground mt-3">
-                  Price includes accommodation, meals, transport, and guided tours as per itinerary. Additional costs may apply for optional activities.
-                </p>
-              </div>
             </div>
 
+            {/* Right: Sticky booking sidebar */}
             <div className="lg:col-span-1">
               <div className="bg-card border border-border rounded-2xl p-6 sticky top-32">
-                <div className="mb-6">
-                  <div className="text-3xl font-bold text-primary mb-1">{formatINR(pkg.price)}</div>
-                  <div className="text-muted-foreground">/person</div>
-                </div>
-                <BookingForm packageSlug={pkg.slug} />
+                {itinerary.totalPrice && (
+                  <div className="mb-6">
+                    <div className="text-3xl font-bold text-primary mb-1">{itinerary.totalPrice}</div>
+                    <div className="text-muted-foreground text-sm">/person</div>
+                  </div>
+                )}
+                <BookingForm packageSlug={slug} />
               </div>
             </div>
           </div>
 
-          {relatedPackages.length > 0 && (
-            <div className="mt-24">
-              <h2 className="text-3xl font-bold mb-8">Similar packages</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-                {relatedPackages.map((p) => (
-                  <PackageCard key={p._id} pkg={p} />
+          {/* Related packages */}
+          {relatedItineraries.length > 0 && (
+            <div className="mt-24 pt-16 border-t border-border">
+              <h2 className="text-3xl font-serif font-bold mb-8">More Packages</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {relatedItineraries.map((i) => (
+                  <ItineraryCard key={i._id} itinerary={i} />
                 ))}
               </div>
             </div>

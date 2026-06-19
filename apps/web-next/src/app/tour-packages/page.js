@@ -1,9 +1,9 @@
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import PackageCard from "@/components/PackageCard";
+import ItineraryCard from "@/components/ItineraryCard";
 import Breadcrumbs from "@/components/Breadcrumbs";
 import JsonLd from "@/components/JsonLd";
-import { getPackages } from "@/lib/data";
+import { getPublicItineraries } from "@/lib/actions/itineraries";
 import { SITE_URL } from "@/lib/constants";
 
 export const revalidate = 3600;
@@ -15,7 +15,7 @@ export const metadata = {
 };
 
 export default async function PackagesPage() {
-  const packages = await getPackages();
+  const itineraries = await getPublicItineraries();
 
   const itemListSchema = {
     "@context": "https://schema.org",
@@ -24,11 +24,11 @@ export default async function PackagesPage() {
     url: `${SITE_URL}/tour-packages`,
     mainEntity: {
       "@type": "ItemList",
-      itemListElement: packages.map((p, idx) => ({
+      itemListElement: itineraries.map((p, idx) => ({
         "@type": "ListItem",
         position: idx + 1,
-        url: `${SITE_URL}/package/${p.slug}`,
-        name: p.name,
+        url: `${SITE_URL}/package/${p.slug || p._id}`,
+        name: p.tripTitle,
       })),
     },
   };
@@ -46,10 +46,10 @@ export default async function PackagesPage() {
             Curated journeys designed to create memories that last a lifetime.
           </p>
 
-          {packages.length > 0 ? (
+          {itineraries.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {packages.map((pkg) => (
-                <PackageCard key={pkg._id} pkg={pkg} />
+              {itineraries.map((itinerary) => (
+                <ItineraryCard key={itinerary._id} itinerary={itinerary} />
               ))}
             </div>
           ) : (

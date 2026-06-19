@@ -1,6 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
-import { MapPin, Calendar, Sparkles } from "lucide-react";
+import { MapPin, Calendar, Sparkles, ChevronRight } from "lucide-react";
 import { formatINR } from "@/lib/utils";
 
 export default function PackageCard({ pkg }) {
@@ -51,8 +51,8 @@ export default function PackageCard({ pkg }) {
               <span className="text-2xl font-bold text-primary">{formatINR(pkg.price)}</span>
               <span className="text-muted-foreground text-sm ml-1">/person</span>
             </div>
-            <span className="text-primary font-medium group-hover:underline">
-              Explore &rarr;
+            <span className="w-9 h-9 rounded-full border border-border flex items-center justify-center text-foreground group-hover:bg-primary group-hover:border-primary group-hover:text-primary-foreground transition-colors duration-200">
+              <ChevronRight className="w-4 h-4" />
             </span>
           </div>
         </div>

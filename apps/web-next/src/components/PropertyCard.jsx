@@ -5,7 +5,9 @@ import { formatINR, priceUnitLabel } from "@/lib/utils";
 
 export default function PropertyCard({ property }) {
   const image = property.images?.[0];
-  const cheapestRoom = property.roomTypes?.[0];
+  const cheapestRoom = property.roomTypes?.reduce((min, room) =>
+    room.price < min.price ? room : min
+  );
 
   return (
     <Link href={`/property/${property.slug}`} className="group block h-full">
@@ -46,10 +48,10 @@ export default function PropertyCard({ property }) {
 
           <div className="flex items-end justify-between mt-auto pt-4 border-t border-border">
             <div>
-              <span className="text-2xl font-bold text-primary">
+              <span className="text-lg font-bold text-primary">
                 {formatINR(cheapestRoom?.price ?? 4500)}
               </span>
-              <span className="text-muted-foreground text-sm ml-1">{priceUnitLabel(cheapestRoom?.priceUnit)}</span>
+              <span className="text-muted-foreground text-xs ml-1">{priceUnitLabel(cheapestRoom?.priceUnit)}</span>
             </div>
             <span className="w-9 h-9 rounded-full border border-border flex items-center justify-center text-foreground group-hover:bg-primary group-hover:border-primary group-hover:text-primary-foreground transition-colors duration-200">
               <ChevronRight className="w-4 h-4" />
