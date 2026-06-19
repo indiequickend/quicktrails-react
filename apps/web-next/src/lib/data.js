@@ -2,6 +2,7 @@ import "server-only";
 import dbConnect from "@/lib/mongodb";
 import Property from "@/models/Property";
 import Package from "@/models/Package";
+import Itinerary from "@/models/Itinerary";
 import Review from "@/models/Review";
 
 // Plain-object helper -- Mongoose documents aren't serializable as-is
@@ -66,7 +67,9 @@ export async function getAllSlugs() {
   await dbConnect();
   const [properties, packages] = await Promise.all([
     Property.find().select("slug updatedAt").lean(),
-    Package.find().select("slug updatedAt").lean(),
+    Itinerary.find({ status: "FINALIZED", "b2bDetails.isB2B": { $ne: true }, slug: { $exists: true, $ne: null } })
+      .select("slug updatedAt")
+      .lean(),
   ]);
   return { properties: toPlain(properties), packages: toPlain(packages) };
 }

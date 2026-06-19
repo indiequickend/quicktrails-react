@@ -8,6 +8,7 @@ import ReviewCard from "@/components/ReviewCard";
 import PropertyCard from "@/components/PropertyCard";
 import PropertyGallery from "@/components/PropertyGallery";
 import Breadcrumbs from "@/components/Breadcrumbs";
+import BookingForm from "@/components/BookingForm";
 import JsonLd from "@/components/JsonLd";
 import { getPropertyBySlug, getRelatedProperties, getReviewsForProperty, getAllSlugs } from "@/lib/data";
 import { formatINR, priceUnitLabel } from "@/lib/utils";
@@ -181,18 +182,17 @@ export default async function PropertyDetailPage({ params }) {
 
             <div className="lg:col-span-1">
               <div className="bg-card border border-border rounded-2xl p-6 sticky top-32">
-                <div className="mb-6">
-                  <div className="text-3xl font-bold text-primary mb-1">
-                    {formatINR(roomTypes[0]?.price ?? 4500)}
-                  </div>
-                  <div className="text-muted-foreground">{priceUnitLabel(roomTypes[0]?.priceUnit)}</div>
-                </div>
-                <Button href={`/contact?property=${property.slug}`} size="lg" className="w-full mb-4">
-                  Book now
-                </Button>
-                <p className="text-sm text-muted-foreground text-center">
-                  Contact us to check availability and make a reservation
-                </p>
+                {roomTypes.length > 0 && (() => {
+                  const cheapest = roomTypes.reduce((a, b) => a.price <= b.price ? a : b);
+                  return (
+                    <div className="mb-6">
+                      <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">Starts from</p>
+                      <div className="text-3xl font-bold text-primary mb-1">{formatINR(cheapest.price)}</div>
+                      <div className="text-muted-foreground">{priceUnitLabel(cheapest.priceUnit)}</div>
+                    </div>
+                  );
+                })()}
+                <BookingForm propertySlug={property.slug} />
               </div>
             </div>
           </div>

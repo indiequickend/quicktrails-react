@@ -74,6 +74,11 @@ async function loadCoverPhoto(url) {
             grad.addColorStop(1, 'rgba(8,15,30,0.90)');
             ctx.fillStyle = grad;
             ctx.fillRect(0, 0, PX_W, PX_H);
+            const topGrad = ctx.createLinearGradient(0, 0, 0, PX_H * 0.22);
+            topGrad.addColorStop(0, 'rgba(8,15,30,0.72)');
+            topGrad.addColorStop(1, 'rgba(8,15,30,0)');
+            ctx.fillStyle = topGrad;
+            ctx.fillRect(0, 0, PX_W, PX_H * 0.22);
             resolve(cvs.toDataURL('image/jpeg', 0.88));
         };
         img.onerror = () => resolve(null);
@@ -165,7 +170,7 @@ async function drawCover(pdf, data, serif) {
 
     // Duration label
     pdf.setFont('helvetica', 'bold');
-    pdf.setFontSize(7.5);
+    pdf.setFontSize(12.5);
     pdf.setTextColor(...AMBER);
     pdf.text((durationText || '').toUpperCase(), M, BLK_Y + 6, { charSpace: 1.8 });
 
@@ -182,7 +187,7 @@ async function drawCover(pdf, data, serif) {
     // Price
     if (totalPrice) {
         pdf.setFont('helvetica', 'normal');
-        pdf.setFontSize(12.5);
+        pdf.setFontSize(17.5);
         pdf.setTextColor(...LGRAY);
         pdf.text(totalPrice, M, TITLE_Y + titleBlockH + 6);
     }

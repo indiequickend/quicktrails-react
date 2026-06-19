@@ -3,7 +3,8 @@
 import dbConnect from "@/lib/mongodb";
 import Booking from "@/models/Booking";
 import Property from "@/models/Property";
-import Package from "@/models/Package";
+import Itinerary from "@/models/Itinerary";
+import { sendEnquiryMail } from "@/lib/mail";
 
 export async function createBooking(prevState, formData) {
   const guestName = String(formData.get("guestName") || "").trim();
@@ -22,14 +23,21 @@ export async function createBooking(prevState, formData) {
   let property = null;
   let pkg = null;
   let bookingType = "general";
+  let forLabel = "General enquiry";
 
   if (propertySlug) {
-    property = await Property.findOne({ slug: propertySlug }).select("_id").lean();
+    property = await Property.findOne({ slug: propertySlug }).select("_id name").lean();
     bookingType = "property";
+    forLabel = property?.name ? `Property: ${property.name}` : "Property enquiry";
   } else if (packageSlug) {
-    pkg = await Package.findOne({ slug: packageSlug }).select("_id").lean();
+    pkg = await Itinerary.findOne({ slug: packageSlug }).select("_id tripTitle").lean();
     bookingType = "package";
+    forLabel = pkg?.tripTitle ? `Package: ${pkg.tripTitle}` : "Package enquiry";
   }
+
+  const numberOfTravelers = Number(formData.get("numberOfTravelers")) || 1;
+  const preferredDates = String(formData.get("preferredDates") || "");
+  const specialRequests = String(formData.get("specialRequests") || "");
 
   await Booking.create({
     property: property?._id || null,
@@ -38,10 +46,13 @@ export async function createBooking(prevState, formData) {
     guestName,
     email,
     phone,
-    numberOfTravelers: Number(formData.get("numberOfTravelers")) || 1,
-    preferredDates: String(formData.get("preferredDates") || ""),
-    specialRequests: String(formData.get("specialRequests") || ""),
+    numberOfTravelers,
+    preferredDates,
+    specialRequests,
   });
+
+  sendEnquiryMail({ guestName, email, phone, numberOfTravelers, preferredDates, specialRequests, forLabel })
+    .catch((err) => console.error('Enquiry mail failed:', err));
 
   return { success: true };
 }

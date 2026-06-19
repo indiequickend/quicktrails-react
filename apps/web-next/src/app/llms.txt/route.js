@@ -1,15 +1,15 @@
-import { getProperties, getPackages } from "@/lib/data";
+import { getProperties } from "@/lib/data";
+import { getPublicItineraries } from "@/lib/actions/itineraries";
 import { SITE_URL, SITE_NAME, SITE_DESCRIPTION } from "@/lib/constants";
 import { priceUnitLabel } from "@/lib/utils";
 
-// llms.txt (https://llmstxt.org/) -- a plain-text index of the site aimed at
-// LLM/AI-agent crawlers that don't render JavaScript. Generated live from
-// MongoDB on each request (cached via `revalidate`), not parsed out of JSX
-// like the old build-time regex hack.
 export const revalidate = 3600;
 
 export async function GET() {
-  const [properties, packages] = await Promise.all([getProperties(), getPackages()]);
+  const [properties, itineraries] = await Promise.all([
+    getProperties(),
+    getPublicItineraries(200),
+  ]);
 
   const lines = [];
   lines.push(`# ${SITE_NAME}`);
@@ -37,15 +37,17 @@ export async function GET() {
   lines.push("");
 
   lines.push("## Tour Packages");
-  for (const pkg of packages) {
+  for (const pkg of itineraries) {
+    if (!pkg.slug) continue;
+    const price = pkg.totalPrice ? ` — ${pkg.totalPrice}` : "";
+    const days = pkg.days?.map((d) => d.dayTitle).filter(Boolean).join(", ");
+    const summary = days ? ` Covers: ${days}.` : "";
     lines.push(
-      `- [${pkg.name}](${SITE_URL}/package/${pkg.slug}): ${pkg.duration}-day trip to ${pkg.destination}, from ₹${pkg.price}/person. ${pkg.description || ""}`.trim()
+      `- [${pkg.tripTitle}](${SITE_URL}/package/${pkg.slug}): ${pkg.durationText}${price}.${summary}`.trim()
     );
   }
   lines.push("");
 
-  // Per the llms.txt spec (llmstxt.org), secondary/boilerplate pages go
-  // under "Optional" -- safe for a context-constrained reader to skip.
   lines.push("## Optional");
   lines.push(`- [Privacy Policy](${SITE_URL}/privacy): How QuickTrails collects and uses personal information.`);
   lines.push(`- [Terms of Service](${SITE_URL}/terms): Terms for bookings, tour packages and car rental services.`);

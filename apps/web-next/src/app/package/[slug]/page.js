@@ -32,7 +32,7 @@ async function getItinerary(slug) {
 async function getRelatedItineraries(currentSlug, limit = 3) {
   try {
     await dbConnect();
-    const docs = await Itinerary.find({ slug: { $ne: currentSlug }, 'b2bDetails.isB2B': { $ne: true } })
+    const docs = await Itinerary.find({ slug: { $ne: currentSlug }, status: 'FINALIZED', 'b2bDetails.isB2B': { $ne: true } })
       .sort({ updatedAt: -1 })
       .limit(limit)
       .lean();
@@ -71,12 +71,43 @@ export default async function PackageDetailPage({ params }) {
   const logoUrl = brandSettings?.primaryLogoUrl || null;
   const companyName = brandSettings?.companyName || 'QuickTrails';
 
+  const dayTitles = itinerary.days?.map((d) => d.dayTitle).filter(Boolean).join(", ");
+
   const tourSchema = {
     "@context": "https://schema.org",
     "@type": "TouristTrip",
     name: itinerary.tripTitle,
-    description: `${itinerary.durationText} tour package`,
-    offers: itinerary.totalPrice ? { "@type": "Offer", name: itinerary.totalPrice } : undefined,
+    description: [
+      itinerary.durationText,
+      dayTitles ? `Covering: ${dayTitles}` : null,
+    ].filter(Boolean).join(" — "),
+    image: itinerary.heroGallery?.filter(Boolean) ?? [],
+    url: `${SITE_URL}/package/${slug}`,
+    provider: {
+      "@type": "TravelAgency",
+      name: companyName,
+      url: SITE_URL,
+      ...(logoUrl ? { logo: logoUrl } : {}),
+    },
+    offers: itinerary.totalPrice
+      ? {
+        "@type": "Offer",
+        name: itinerary.totalPrice,
+        priceCurrency: "INR",
+        availability: "https://schema.org/InStock",
+      }
+      : undefined,
+    itinerary: itinerary.days?.length > 0
+      ? {
+        "@type": "ItemList",
+        itemListElement: itinerary.days.map((day, i) => ({
+          "@type": "ListItem",
+          position: i + 1,
+          name: day.dayTitle || `Day ${day.dayNumber}`,
+          ...(day.dayDescription ? { description: day.dayDescription } : {}),
+        })),
+      }
+      : undefined,
   };
 
   return (
@@ -242,7 +273,7 @@ export default async function PackageDetailPage({ params }) {
                 {itinerary.totalPrice && (
                   <div className="mb-6">
                     <div className="text-3xl font-bold text-primary mb-1">{itinerary.totalPrice}</div>
-                    <div className="text-muted-foreground text-sm">/person</div>
+                    {/* <div className="text-muted-foreground text-sm">/person</div> */}
                   </div>
                 )}
                 <BookingForm packageSlug={slug} />

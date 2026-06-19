@@ -13,7 +13,7 @@ export default async function AdminBookingsPage() {
   const bookings = await Booking.find()
     .sort("-createdAt")
     .populate("property", "name")
-    .populate("package", "name")
+    .populate("package", "tripTitle")
     .lean();
 
   return (
@@ -40,7 +40,7 @@ export default async function AdminBookingsPage() {
                   <div>{b.email}</div>
                   <div className="text-muted-foreground">{b.phone}</div>
                 </td>
-                <td className="px-4 py-3">{b.property?.name || b.package?.name || "General enquiry"}</td>
+                <td className="px-4 py-3">{b.property?.name || b.package?.tripTitle || "General enquiry"}</td>
                 <td className="px-4 py-3">{b.numberOfTravelers}</td>
                 <td className="px-4 py-3">{b.preferredDates || "-"}</td>
                 <td className="px-4 py-3">

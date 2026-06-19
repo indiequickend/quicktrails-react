@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 const BookingSchema = new mongoose.Schema(
   {
     property: { type: mongoose.Schema.Types.ObjectId, ref: "Property", default: null },
-    package: { type: mongoose.Schema.Types.ObjectId, ref: "Package", default: null },
+    package: { type: mongoose.Schema.Types.ObjectId, ref: "Itinerary", default: null },
     bookingType: { type: String, enum: ["property", "package", "general"], default: "general" },
     guestName: { type: String, required: true, trim: true },
     email: { type: String, required: true, trim: true, lowercase: true },
