@@ -28,8 +28,7 @@ function ab2b64(buf) {
 }
 
 async function loadFont(pdf) {
-    // Google Fonts GitHub repo via jsDelivr — actual TTF files (not WOFF2)
-    const BASE = 'https://cdn.jsdelivr.net/gh/google/fonts@main/ofl/playfairdisplay/static/';
+    const BASE = '/fonts/';
     try {
         const [bRes, rRes] = await Promise.all([
             fetch(`${BASE}PlayfairDisplay-Bold.ttf`),
@@ -263,12 +262,12 @@ function drawPageFooter(pdf) {
 async function drawActivityCard(pdf, act, x, y, colW, cardH) {
     const bodyH = cardH - CARD_GAP;
 
-    // Card background + border
+    // Card background + border with rounded corners
     pdf.setFillColor(248, 250, 252);
-    pdf.rect(x, y, colW, bodyH, 'F');
+    pdf.roundedRect(x, y, colW, bodyH, 2, 2, 'F');
     pdf.setDrawColor(...LLGRAY);
     pdf.setLineWidth(0.2);
-    pdf.rect(x, y, colW, bodyH, 'S');
+    pdf.roundedRect(x, y, colW, bodyH, 2, 2, 'S');
 
     // Activity image (fixed height)
     const pxW = Math.round(colW / 25.4 * 150);
