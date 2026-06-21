@@ -1,17 +1,16 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import Image from "next/image";
-import { X, Upload } from "lucide-react";
+import { X, Upload, GripVertical } from "lucide-react";
+import { cn } from "@/lib/utils";
 
-// Uploads directly to our /api/admin/upload route (which forwards to
-// Cloudinary server-side, keeping the API secret off the client) and keeps
-// the resulting [{ url, publicId }] list in a hidden input so it submits
-// along with the rest of the form.
 export default function ImageUploader({ name, initialImages = [], multiple = true, onChange }) {
   const [images, setImagesState] = useState(initialImages);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState("");
+  const dragIndex = useRef(null);
+  const [dragOverIndex, setDragOverIndex] = useState(null);
 
   function setImages(next) {
     setImagesState((prev) => {
@@ -24,10 +23,8 @@ export default function ImageUploader({ name, initialImages = [], multiple = tru
   async function handleFiles(e) {
     const files = Array.from(e.target.files || []);
     if (files.length === 0) return;
-
     setUploading(true);
     setError("");
-
     try {
       const uploaded = [];
       for (const file of files) {
@@ -35,11 +32,10 @@ export default function ImageUploader({ name, initialImages = [], multiple = tru
         fd.append("file", file);
         const res = await fetch("/api/admin/upload", { method: "POST", body: fd });
         if (!res.ok) throw new Error("Upload failed");
-        const result = await res.json();
-        uploaded.push(result);
+        uploaded.push(await res.json());
       }
       setImages((prev) => (multiple ? [...prev, ...uploaded] : uploaded));
-    } catch (err) {
+    } catch {
       setError("One or more uploads failed. Please try again.");
     } finally {
       setUploading(false);
@@ -51,25 +47,77 @@ export default function ImageUploader({ name, initialImages = [], multiple = tru
     setImages((prev) => prev.filter((img) => img.publicId !== publicId));
   }
 
+  function handleDragStart(idx) {
+    dragIndex.current = idx;
+  }
+
+  function handleDragOver(e, idx) {
+    e.preventDefault();
+    if (dragIndex.current === null || dragIndex.current === idx) return;
+    setDragOverIndex(idx);
+  }
+
+  function handleDrop(idx) {
+    const from = dragIndex.current;
+    if (from === null || from === idx) {
+      dragIndex.current = null;
+      setDragOverIndex(null);
+      return;
+    }
+    setImages((prev) => {
+      const next = [...prev];
+      const [moved] = next.splice(from, 1);
+      next.splice(idx, 0, moved);
+      return next;
+    });
+    dragIndex.current = null;
+    setDragOverIndex(null);
+  }
+
+  function handleDragEnd() {
+    dragIndex.current = null;
+    setDragOverIndex(null);
+  }
+
   return (
     <div>
       <input type="hidden" name={name} value={JSON.stringify(images)} />
 
-      <div className="flex flex-wrap gap-3 mb-3">
-        {images.map((img) => (
-          <div key={img.publicId} className="relative w-24 h-24 rounded-lg overflow-hidden border border-border">
-            <Image src={img.url} alt="" fill className="object-cover" />
-            <button
-              type="button"
-              onClick={() => removeImage(img.publicId)}
-              className="absolute top-1 right-1 bg-slate-950/70 text-white rounded-full p-1"
-              aria-label="Remove image"
+      {images.length > 0 && (
+        <div className="flex flex-wrap gap-3 mb-3">
+          {images.map((img, idx) => (
+            <div
+              key={img.publicId}
+              draggable={multiple}
+              onDragStart={() => handleDragStart(idx)}
+              onDragOver={(e) => handleDragOver(e, idx)}
+              onDrop={() => handleDrop(idx)}
+              onDragEnd={handleDragEnd}
+              className={cn(
+                "relative w-24 h-24 rounded-lg overflow-hidden border border-border transition-all duration-150 select-none",
+                multiple && "cursor-grab active:cursor-grabbing",
+                dragIndex.current === idx && "opacity-40 scale-95",
+                dragOverIndex === idx && dragIndex.current !== idx && "ring-2 ring-primary scale-105"
+              )}
             >
-              <X className="w-3 h-3" />
-            </button>
-          </div>
-        ))}
-      </div>
+              <Image src={img.url} alt="" fill className="object-cover pointer-events-none" />
+              {multiple && (
+                <div className="absolute bottom-1 left-1 bg-black/50 rounded p-0.5 text-white">
+                  <GripVertical className="w-3 h-3" />
+                </div>
+              )}
+              <button
+                type="button"
+                onClick={() => removeImage(img.publicId)}
+                className="absolute top-1 right-1 bg-slate-950/70 text-white rounded-full p-1"
+                aria-label="Remove image"
+              >
+                <X className="w-3 h-3" />
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
 
       <label className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-input cursor-pointer hover:bg-muted text-sm">
         <Upload className="w-4 h-4" />
@@ -83,6 +131,10 @@ export default function ImageUploader({ name, initialImages = [], multiple = tru
           disabled={uploading}
         />
       </label>
+
+      {multiple && images.length > 1 && (
+        <p className="text-xs text-muted-foreground mt-2">Drag thumbnails to reorder. First image is the cover.</p>
+      )}
 
       {error && <p className="text-sm text-destructive mt-2">{error}</p>}
     </div>
