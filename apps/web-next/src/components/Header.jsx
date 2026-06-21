@@ -28,7 +28,7 @@ export default function Header({ transparent = false }) {
   useEffect(() => {
     fetch('/api/brand-logo').then(r => r.json()).then(data => {
       if (data.logoUrl) setBrandLogoUrl(data.logoUrl);
-    }).catch(() => {});
+    }).catch(() => { });
   }, []);
 
   // Close the mobile menu on navigation by deriving it during render
@@ -59,9 +59,9 @@ export default function Header({ transparent = false }) {
         <div className="flex items-center justify-between h-20">
           <Link href="/" className="flex items-center space-x-2 group">
             {brandLogoUrl ? (
-              <img src={brandLogoUrl} alt="QuickTrails Logo" className="h-[50px] w-auto object-contain" />
+              <img src={brandLogoUrl} alt="QuickTrails Logo" className="h-[35px] w-auto object-contain" />
             ) : (
-              <Image src="/quicktrails-logo.png" alt="QuickTrails Logo" width={175} height={75} />
+              <Image src="/quicktrails-logo.png" alt="QuickTrails Logo" width={172} height={35} />
             )}
           </Link>
 
