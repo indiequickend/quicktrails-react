@@ -23,14 +23,27 @@ export async function generateStaticParams() {
   return properties.map((p) => ({ slug: p.slug }));
 }
 
+function stripHtml(html) {
+  return html?.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim() || "";
+}
+
+function buildPropertyDescription(property) {
+  const raw = stripHtml(property.description);
+  if (raw.length > 60) {
+    return raw.length > 155 ? raw.slice(0, 152) + "…" : raw;
+  }
+  const amenities = (property.amenities || []).slice(0, 3).join(", ");
+  const ratingPart = property.rating > 0 ? ` Rated ${property.rating}/5 by guests.` : "";
+  const amenityPart = amenities ? ` Enjoy ${amenities} and more.` : "";
+  return `Discover ${property.name} in ${property.location} — a handpicked ${property.category || "property"} by QuickTrails.${amenityPart}${ratingPart} Book your stay today.`;
+}
+
 export async function generateMetadata({ params }) {
   const { slug } = await params;
   const property = await getPropertyBySlug(slug);
   if (!property) return {};
 
-  const description =
-    property.description ||
-    `Book ${property.name} in ${property.location}. ${property.category} with top amenities and excellent reviews.`;
+  const description = buildPropertyDescription(property);
 
   return {
     title: property.name,
@@ -39,7 +52,11 @@ export async function generateMetadata({ params }) {
     openGraph: {
       title: property.name,
       description,
-      images: property.images?.[0]?.url ? [property.images[0].url] : undefined,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: property.name,
+      description,
     },
   };
 }

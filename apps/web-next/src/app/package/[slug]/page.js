@@ -42,17 +42,37 @@ async function getRelatedItineraries(currentSlug, limit = 3) {
   }
 }
 
+function buildPackageDescription(itinerary) {
+  const dayCount = itinerary.days?.length ?? 0;
+  const inclusions = (itinerary.inclusions || []).slice(0, 2).join(" & ");
+  const inclusionPart = inclusions ? ` Includes ${inclusions}.` : "";
+  const dayPart = dayCount > 0 ? `${dayCount}-day ` : "";
+  const welcome = itinerary.welcomeMessage
+    ? itinerary.welcomeMessage.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim().slice(0, 100)
+    : "";
+  if (welcome.length > 40) return `${welcome}… Plan your getaway with QuickTrails.`;
+  return `${itinerary.durationText} ${dayPart}curated tour — ${itinerary.tripTitle}.${inclusionPart} Expertly planned by QuickTrails. Book now.`;
+}
+
 export async function generateMetadata({ params }) {
   const { slug } = await params;
   const itinerary = await getItinerary(slug);
   if (!itinerary) return {};
+
+  const description = buildPackageDescription(itinerary);
+
   return {
     title: itinerary.tripTitle,
-    description: `${itinerary.durationText} tour package — ${itinerary.tripTitle}. Curated by QuickTrails.`,
+    description,
     alternates: { canonical: `/package/${slug}` },
     openGraph: {
       title: itinerary.tripTitle,
-      images: itinerary.heroGallery?.[0] ? [itinerary.heroGallery[0]] : undefined,
+      description,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: itinerary.tripTitle,
+      description,
     },
   };
 }
