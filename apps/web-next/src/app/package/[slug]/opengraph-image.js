@@ -25,6 +25,8 @@ export default async function Image({ params }) {
 
   const fontBold = readFileSync(join(process.cwd(), "public/fonts/PlayfairDisplay-Bold.ttf"));
   const fontRegular = readFileSync(join(process.cwd(), "public/fonts/PlayfairDisplay-Regular.ttf"));
+  const logoData = readFileSync(join(process.cwd(), "public/quicktrails-logo.png"));
+  const logoSrc = `data:image/png;base64,${logoData.toString("base64")}`;
 
   const title = itinerary?.tripTitle || "QuickTrails";
   const duration = itinerary?.durationText || "";
@@ -80,17 +82,7 @@ export default async function Image({ params }) {
         >
           {/* Top bar */}
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-            <span
-              style={{
-                color: "#fbbf24",
-                fontSize: 26,
-                fontWeight: 700,
-                letterSpacing: "0.12em",
-                textTransform: "uppercase",
-              }}
-            >
-              QuickTrails
-            </span>
+            <img src={logoSrc} width={160} height={48} style={{ objectFit: "contain", objectPosition: "left" }} />
             {duration && (
               <div
                 style={{
