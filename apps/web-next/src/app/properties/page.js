@@ -15,7 +15,7 @@ export const metadata = {
 };
 
 export default async function PropertiesPage() {
-  const properties = await getProperties({ sort: "-rating" });
+  const properties = await getProperties({ sort: "-updatedAt" });
 
   const itemListSchema = {
     "@context": "https://schema.org",

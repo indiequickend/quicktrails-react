@@ -29,7 +29,7 @@ const features = [
 
 export default async function HomePage() {
   const [properties, packages] = await Promise.all([
-    getProperties({ limit: 4, sort: "-rating" }),
+    getProperties({ limit: 4, sort: "-updatedAt" }),
     getPublicItineraries(4),
   ]);
 
