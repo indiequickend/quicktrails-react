@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { ChevronLeft, ChevronRight, Images, X } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -10,6 +10,14 @@ export default function PropertyGallery({ images, name }) {
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const touchStartX = useRef(null);
   const lightboxRef = useRef(null);
+  const thumbStripRef = useRef(null);
+
+  useEffect(() => {
+    const strip = thumbStripRef.current;
+    if (!strip) return;
+    const thumb = strip.children[activeIndex];
+    thumb?.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "center" });
+  }, [activeIndex]);
 
   if (!images || images.length === 0) return null;
 
@@ -98,22 +106,43 @@ export default function PropertyGallery({ images, name }) {
 
       {/* ── Thumbnail strip ────────────────────────────────────── */}
       {count > 1 && (
-        <div className="flex gap-2 mt-2 overflow-x-auto pb-1 [scrollbar-width:none]">
-          {images.map((img, idx) => (
-            <button
-              key={idx}
-              onClick={() => setActiveIndex(idx)}
-              aria-label={`View photo ${idx + 1}`}
-              className={cn(
-                "relative h-16 w-24 md:h-20 md:w-28 flex-shrink-0 rounded-xl overflow-hidden ring-2 transition-all duration-200",
-                idx === activeIndex
-                  ? "ring-primary shadow-md"
-                  : "ring-transparent opacity-55 hover:opacity-90 hover:ring-border"
-              )}
-            >
-              <Image src={img.url} alt="" fill sizes="112px" className="object-cover" />
-            </button>
-          ))}
+        <div className="relative mt-3 flex items-center gap-1">
+          <button
+            onClick={prev}
+            aria-label="Previous thumbnail"
+            className="flex-shrink-0 w-8 h-8 rounded-full bg-background border border-border shadow-sm flex items-center justify-center hover:bg-muted transition-colors z-10"
+          >
+            <ChevronLeft className="w-4 h-4" />
+          </button>
+
+          <div
+            ref={thumbStripRef}
+            className="flex gap-2 overflow-x-auto scroll-smooth [scrollbar-width:none] [&::-webkit-scrollbar]:hidden flex-1"
+          >
+            {images.map((img, idx) => (
+              <button
+                key={idx}
+                onClick={() => setActiveIndex(idx)}
+                aria-label={`View photo ${idx + 1}`}
+                className={cn(
+                  "relative h-16 w-24 md:h-20 md:w-28 flex-shrink-0 rounded-xl overflow-hidden ring-2 transition-all duration-200",
+                  idx === activeIndex
+                    ? "ring-primary shadow-md opacity-100"
+                    : "ring-transparent opacity-55 hover:opacity-90 hover:ring-border"
+                )}
+              >
+                <Image src={img.url} alt="" fill sizes="112px" className="object-cover" />
+              </button>
+            ))}
+          </div>
+
+          <button
+            onClick={next}
+            aria-label="Next thumbnail"
+            className="flex-shrink-0 w-8 h-8 rounded-full bg-background border border-border shadow-sm flex items-center justify-center hover:bg-muted transition-colors z-10"
+          >
+            <ChevronRight className="w-4 h-4" />
+          </button>
         </div>
       )}
 

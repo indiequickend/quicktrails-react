@@ -10,7 +10,7 @@ const transporter = nodemailer.createTransport({
     },
 });
 
-export async function sendEnquiryMail({ guestName, email, phone, numberOfTravelers, preferredDates, specialRequests, forLabel }) {
+export async function sendEnquiryMail({ guestName, email, phone, roomType, numberOfTravelers, preferredDates, specialRequests, forLabel }) {
     if (!process.env.SMTP_HOST || !process.env.SMTP_USER) {
         console.warn('Mail: SMTP not configured — skipping email notification.');
         return;
@@ -21,6 +21,7 @@ export async function sendEnquiryMail({ guestName, email, phone, numberOfTravele
         ['Email', email],
         ['Phone', phone],
         ['For', forLabel],
+        ...(roomType ? [['Room type', roomType]] : []),
         ['Travelers', numberOfTravelers],
         ['Preferred dates', preferredDates || '—'],
         ['Special requests', specialRequests || '—'],

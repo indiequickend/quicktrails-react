@@ -2,10 +2,10 @@
 
 import { useActionState } from "react";
 import { createBooking } from "@/lib/actions/booking";
-import { Input, Textarea, Label } from "@/components/ui/Input";
+import { Input, Textarea, Label, Select } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 
-export default function BookingForm({ propertySlug, packageSlug }) {
+export default function BookingForm({ propertySlug, packageSlug, roomTypes = [] }) {
   const [state, formAction, pending] = useActionState(createBooking, undefined);
 
   if (state?.success) {
@@ -35,6 +35,18 @@ export default function BookingForm({ propertySlug, packageSlug }) {
         <Label htmlFor="phone">Phone *</Label>
         <Input id="phone" name="phone" type="tel" required placeholder="+91 98765 43210" />
       </div>
+      {roomTypes.length > 1 && (
+        <div>
+          <Label htmlFor="roomType">Room type</Label>
+          <Select id="roomType" name="roomType">
+            <option value="">Select a room type</option>
+            {roomTypes.map((rt) => (
+              <option key={rt.type} value={rt.type}>{rt.type}</option>
+            ))}
+          </Select>
+        </div>
+      )}
+
       <div>
         <Label htmlFor="numberOfTravelers">Number of travelers</Label>
         <Input id="numberOfTravelers" name="numberOfTravelers" type="number" min="1" defaultValue={1} />

@@ -35,6 +35,7 @@ export async function createBooking(prevState, formData) {
     forLabel = pkg?.tripTitle ? `Package: ${pkg.tripTitle}` : "Package enquiry";
   }
 
+  const roomType = String(formData.get("roomType") || "");
   const numberOfTravelers = Number(formData.get("numberOfTravelers")) || 1;
   const preferredDates = String(formData.get("preferredDates") || "");
   const specialRequests = String(formData.get("specialRequests") || "");
@@ -46,12 +47,13 @@ export async function createBooking(prevState, formData) {
     guestName,
     email,
     phone,
+    roomType,
     numberOfTravelers,
     preferredDates,
     specialRequests,
   });
 
-  sendEnquiryMail({ guestName, email, phone, numberOfTravelers, preferredDates, specialRequests, forLabel })
+  sendEnquiryMail({ guestName, email, phone, roomType, numberOfTravelers, preferredDates, specialRequests, forLabel })
     .catch((err) => console.error('Enquiry mail failed:', err));
 
   return { success: true };

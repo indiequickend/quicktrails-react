@@ -2,9 +2,10 @@
 
 import { useActionState, useState } from "react";
 import { saveProperty } from "@/lib/actions/properties";
-import { Input, Textarea, Label, Select } from "@/components/ui/Input";
+import { Input, Label, Select } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import ImageUploader from "@/components/admin/ImageUploader";
+import TinyMCEEditor from "@/components/TinyMCEEditor";
 import { Plus, Trash2 } from "lucide-react";
 import { PRICE_UNIT_OPTIONS } from "@/lib/utils";
 
@@ -15,6 +16,7 @@ export default function PropertyForm({ property }) {
   const [roomTypes, setRoomTypes] = useState(
     property?.roomTypes?.length ? property.roomTypes : [{ type: "", description: "", price: "", priceUnit: "night" }]
   );
+  const [description, setDescription] = useState(property?.description || "");
 
   function updateRoomType(idx, field, value) {
     setRoomTypes((prev) => prev.map((rt, i) => (i === idx ? { ...rt, [field]: value } : rt)));
@@ -75,8 +77,9 @@ export default function PropertyForm({ property }) {
       </div>
 
       <div>
-        <Label htmlFor="description">Description</Label>
-        <Textarea id="description" name="description" rows={4} defaultValue={property?.description} />
+        <Label>Description</Label>
+        <input type="hidden" name="description" value={description} />
+        <TinyMCEEditor value={description} onEditorChange={setDescription} />
       </div>
 
       <div>
