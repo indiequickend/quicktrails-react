@@ -45,6 +45,30 @@ function parseRoomTypes(formData) {
   }));
 }
 
+export async function getAdminProperties(page = 1, limit = 20, search = '') {
+  await verifyAdminSession();
+  await dbConnect();
+  try {
+    const query = search
+      ? { $or: [{ name: { $regex: search, $options: 'i' } }, { location: { $regex: search, $options: 'i' } }] }
+      : {};
+    const skip = (page - 1) * limit;
+    const [items, total] = await Promise.all([
+      Property.find(query).sort('location').skip(skip).limit(limit).lean(),
+      Property.countDocuments(query),
+    ]);
+    return {
+      success: true,
+      items: JSON.parse(JSON.stringify(items)),
+      totalPages: Math.ceil(total / limit),
+      total,
+    };
+  } catch (error) {
+    console.error('Fetch admin properties error:', error);
+    return { success: false, items: [], totalPages: 0, total: 0 };
+  }
+}
+
 export async function saveProperty(prevState, formData) {
   await verifyAdminSession();
   await dbConnect();
