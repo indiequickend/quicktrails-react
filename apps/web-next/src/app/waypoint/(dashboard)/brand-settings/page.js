@@ -12,6 +12,7 @@ export default function BrandSettingsPage() {
         companyName: 'QuickTrails',
         primaryLogoUrl: '',
         brandColors: { primary: '#1A202C', accent: '#D69E2E' },
+        contactInfo: { phone: '', email: '', website: '', address: '' },
         defaultInclusions: [],
         defaultExclusions: [],
         defaultTerms: '',
@@ -31,6 +32,7 @@ export default function BrandSettingsPage() {
                     companyName: data.companyName || '',
                     primaryLogoUrl: data.primaryLogoUrl || '',
                     brandColors: data.brandColors || { primary: '#1A202C', accent: '#D69E2E' },
+                    contactInfo: data.contactInfo || { phone: '', email: '', website: '', address: '' },
                     defaultInclusions: data.defaultInclusions || [],
                     defaultExclusions: data.defaultExclusions || [],
                     defaultTerms: data.defaultTerms || '',
@@ -100,6 +102,30 @@ export default function BrandSettingsPage() {
                         <div className="flex items-center gap-3">
                             <input type="color" value={settings.brandColors.accent} onChange={(e) => setSettings({ ...settings, brandColors: { ...settings.brandColors, accent: e.target.value } })} className="h-10 w-12 p-1 border border-border rounded cursor-pointer" />
                             <span className="text-sm text-muted-foreground font-mono uppercase">{settings.brandColors.accent}</span>
+                        </div>
+                    </div>
+                </section>
+
+                {/* Contact Information */}
+                <section className="pt-8 border-t border-border">
+                    <h2 className="text-sm font-semibold mb-4 text-foreground">Contact Information</h2>
+                    <p className="text-xs text-muted-foreground mb-4">The phone number is used for the WhatsApp float button on the site. Include country code, e.g. +919810001234</p>
+                    <div className="grid grid-cols-2 gap-6">
+                        <div>
+                            <label className="block text-sm font-medium mb-1">WhatsApp / Phone</label>
+                            <input type="tel" value={settings.contactInfo?.phone || ''} onChange={(e) => setSettings({ ...settings, contactInfo: { ...settings.contactInfo, phone: e.target.value } })} placeholder="+919810001234" className="w-full p-2 border border-border rounded focus:outline-none" />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium mb-1">Email</label>
+                            <input type="email" value={settings.contactInfo?.email || ''} onChange={(e) => setSettings({ ...settings, contactInfo: { ...settings.contactInfo, email: e.target.value } })} placeholder="hello@yoursite.com" className="w-full p-2 border border-border rounded focus:outline-none" />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium mb-1">Website</label>
+                            <input type="url" value={settings.contactInfo?.website || ''} onChange={(e) => setSettings({ ...settings, contactInfo: { ...settings.contactInfo, website: e.target.value } })} placeholder="https://yoursite.com" className="w-full p-2 border border-border rounded focus:outline-none" />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium mb-1">Address</label>
+                            <input type="text" value={settings.contactInfo?.address || ''} onChange={(e) => setSettings({ ...settings, contactInfo: { ...settings.contactInfo, address: e.target.value } })} placeholder="Street, City, State, PIN" className="w-full p-2 border border-border rounded focus:outline-none" />
                         </div>
                     </div>
                 </section>
