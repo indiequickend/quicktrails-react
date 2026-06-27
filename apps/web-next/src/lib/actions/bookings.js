@@ -1,4 +1,4 @@
-"use server";
+﻿"use server";
 
 import { revalidatePath } from "next/cache";
 import dbConnect from "@/lib/mongodb";
@@ -13,5 +13,5 @@ export async function updateBookingStatus(formData) {
   const status = formData.get("status");
 
   await Booking.findByIdAndUpdate(id, { status });
-  revalidatePath("/admin/bookings");
+  revalidatePath("/waypoint/bookings");
 }

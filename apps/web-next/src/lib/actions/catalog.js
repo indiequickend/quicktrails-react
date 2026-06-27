@@ -1,4 +1,4 @@
-'use server';
+﻿'use server';
 
 import dbConnect from '@/lib/mongodb';
 import CatalogItem from '@/models/CatalogItem';
@@ -9,7 +9,7 @@ export async function saveCatalogItem(formData) {
     await dbConnect();
     try {
         const newItem = await CatalogItem.create(formData);
-        revalidatePath('/admin/catalog');
+        revalidatePath('/waypoint/catalog');
         return { success: true, id: newItem._id.toString() };
     } catch (error) {
         console.error('Save catalog item error:', error);
@@ -87,7 +87,7 @@ export async function updateCatalogItem(id, formData) {
     await dbConnect();
     try {
         await CatalogItem.findByIdAndUpdate(id, formData);
-        revalidatePath('/admin/catalog');
+        revalidatePath('/waypoint/catalog');
         return { success: true };
     } catch (error) {
         console.error('Update catalog item error:', error);
@@ -99,7 +99,7 @@ export async function deleteCatalogItem(id) {
     await dbConnect();
     try {
         await CatalogItem.findByIdAndDelete(id);
-        revalidatePath('/admin/catalog');
+        revalidatePath('/waypoint/catalog');
         return { success: true };
     } catch (error) {
         console.error('Delete catalog item error:', error);

@@ -1,4 +1,4 @@
-"use server";
+﻿"use server";
 
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
@@ -104,8 +104,8 @@ export async function saveProperty(prevState, formData) {
 
   revalidatePath("/properties");
   revalidatePath(`/property/${slug}`);
-  revalidatePath("/admin/properties");
-  redirect("/admin/properties");
+  revalidatePath("/waypoint/properties");
+  redirect("/waypoint/properties");
 }
 
 export async function deleteProperty(formData) {
@@ -120,6 +120,6 @@ export async function deleteProperty(formData) {
   }
 
   revalidatePath("/properties");
-  revalidatePath("/admin/properties");
-  redirect("/admin/properties");
+  revalidatePath("/waypoint/properties");
+  redirect("/waypoint/properties");
 }

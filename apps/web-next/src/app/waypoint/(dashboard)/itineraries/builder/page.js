@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useEffect, useState, Suspense, useRef } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -127,7 +127,7 @@ function BuilderWorkspace() {
             const res = await createItinerary(dataToSave);
             if (res.success) {
                 alert('New itinerary created successfully!');
-                router.replace(`/admin/itineraries/builder?id=${res.newId}`);
+                router.replace(`/waypoint/itineraries/builder?id=${res.newId}`);
             } else {
                 alert('Failed to create.');
             }
@@ -146,7 +146,7 @@ function BuilderWorkspace() {
         } else {
             const res = await createItinerary(dataToSave);
             if (res.success) {
-                router.replace(`/admin/itineraries/builder?id=${res.newId}`);
+                router.replace(`/waypoint/itineraries/builder?id=${res.newId}`);
                 ok = true;
             }
         }

@@ -1,4 +1,4 @@
-import "server-only";
+﻿import "server-only";
 import { cache } from "react";
 import { redirect } from "next/navigation";
 import { getSession } from "@/lib/session";
@@ -10,7 +10,7 @@ export const verifyAdminSession = cache(async () => {
   const session = await getSession();
 
   if (!session?.userId || session.role !== "admin") {
-    redirect("/admin/login");
+    redirect("/waypoint/login");
   }
 
   return { userId: session.userId, role: session.role };

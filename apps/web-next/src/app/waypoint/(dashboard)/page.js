@@ -1,4 +1,4 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 import { Building2, Map, BookOpen, Inbox, Plus, ArrowRight, CheckCircle2, PhoneCall, XCircle, Star, TrendingUp, TrendingDown, Minus, Eye } from "lucide-react";
 import dbConnect from "@/lib/mongodb";
 import Property from "@/models/Property";
@@ -139,18 +139,18 @@ export default async function AdminDashboardPage() {
   const topPages       = topPagesAgg.map(({ _id, slug, refType, count }) => ({ path: _id, slug, refType, count }));
 
   const stats = [
-    { label: "Properties",      value: propertyCount,      icon: Building2, href: "/admin/properties" },
-    { label: "Itineraries",     value: itineraryCount,     icon: Map,        href: "/admin/itineraries" },
-    { label: "Catalog items",   value: catalogCount,       icon: BookOpen,   href: "/admin/catalog" },
-    { label: "Total enquiries", value: totalBookings,      icon: Inbox,      href: "/admin/bookings", sub: { thisMonth: thisMonthCount, delta: momDelta } },
+    { label: "Properties",      value: propertyCount,      icon: Building2, href: "/waypoint/properties" },
+    { label: "Itineraries",     value: itineraryCount,     icon: Map,        href: "/waypoint/itineraries" },
+    { label: "Catalog items",   value: catalogCount,       icon: BookOpen,   href: "/waypoint/catalog" },
+    { label: "Total enquiries", value: totalBookings,      icon: Inbox,      href: "/waypoint/bookings", sub: { thisMonth: thisMonthCount, delta: momDelta } },
     { label: "Page views",      value: viewsThisMonth,     icon: Eye,        href: "#analytics",      sub: { label: `${totalViews30d} in 30 days` } },
   ];
 
   const quickActions = [
-    { label: "New property",   href: "/admin/properties/new",      icon: Plus },
-    { label: "New itinerary",  href: "/admin/itineraries/builder", icon: Plus },
-    { label: "View enquiries", href: "/admin/bookings",            icon: ArrowRight },
-    { label: "Manage catalog", href: "/admin/catalog",             icon: ArrowRight },
+    { label: "New property",   href: "/waypoint/properties/new",      icon: Plus },
+    { label: "New itinerary",  href: "/waypoint/itineraries/builder", icon: Plus },
+    { label: "View enquiries", href: "/waypoint/bookings",            icon: ArrowRight },
+    { label: "Manage catalog", href: "/waypoint/catalog",             icon: ArrowRight },
   ];
 
   return (
@@ -210,7 +210,7 @@ export default async function AdminDashboardPage() {
               return (
                 <Link
                   key={key}
-                  href="/admin/bookings"
+                  href="/waypoint/bookings"
                   className={`flex flex-col gap-2 p-4 rounded-xl border ${cfg.color} hover:opacity-80 transition`}
                 >
                   <Icon className="w-4 h-4" />
@@ -398,7 +398,7 @@ export default async function AdminDashboardPage() {
       <div className="bg-card border border-border rounded-2xl overflow-hidden">
         <div className="flex items-center justify-between px-6 py-4 border-b border-border">
           <h2 className="text-base font-semibold">Recent enquiries</h2>
-          <Link href="/admin/bookings" className="text-sm text-primary hover:underline flex items-center gap-1">
+          <Link href="/waypoint/bookings" className="text-sm text-primary hover:underline flex items-center gap-1">
             View all <ArrowRight className="w-3.5 h-3.5" />
           </Link>
         </div>

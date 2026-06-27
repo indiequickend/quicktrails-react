@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+﻿import { NextResponse } from "next/server";
 import { decrypt } from "@/lib/session";
 
 // Optimistic check only (cookie presence + signature), runs on every request
@@ -8,16 +8,16 @@ import { decrypt } from "@/lib/session";
 export default async function proxy(req) {
   const { pathname } = req.nextUrl;
 
-  if (pathname === "/admin/login") {
+  if (pathname === "/waypoint/login") {
     return NextResponse.next();
   }
 
-  if (pathname.startsWith("/admin")) {
+  if (pathname.startsWith("/waypoint")) {
     const cookie = req.cookies.get("qt_session")?.value;
     const session = await decrypt(cookie);
 
     if (!session?.userId || session.role !== "admin") {
-      return NextResponse.redirect(new URL("/admin/login", req.url));
+      return NextResponse.redirect(new URL("/waypoint/login", req.url));
     }
   }
 
@@ -25,5 +25,5 @@ export default async function proxy(req) {
 }
 
 export const config = {
-  matcher: ["/admin/:path*"],
+  matcher: ["/waypoint/:path*"],
 };

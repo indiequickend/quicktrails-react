@@ -1,4 +1,4 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 import { Plus, Pencil, Trash2 } from "lucide-react";
 import { verifyAdminSession } from "@/lib/dal";
 import { deletePackage } from "@/lib/actions/packages";
@@ -14,7 +14,7 @@ export default async function AdminPackagesPage() {
     <div>
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-bold">Tour packages</h1>
-        <Button href="/admin/packages/new">
+        <Button href="/waypoint/packages/new">
           <Plus className="w-4 h-4" /> New package
         </Button>
       </div>
@@ -39,7 +39,7 @@ export default async function AdminPackagesPage() {
                 <td className="px-4 py-3">{formatINR(pkg.price)}</td>
                 <td className="px-4 py-3">
                   <div className="flex items-center gap-2">
-                    <Link href={`/admin/packages/${pkg._id}/edit`} className="p-2 hover:bg-muted rounded-lg">
+                    <Link href={`/waypoint/packages/${pkg._id}/edit`} className="p-2 hover:bg-muted rounded-lg">
                       <Pencil className="w-4 h-4" />
                     </Link>
                     <form action={deletePackage}>

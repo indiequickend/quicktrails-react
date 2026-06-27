@@ -1,4 +1,4 @@
-'use server';
+﻿'use server';
 
 import dbConnect from '@/lib/mongodb';
 import Itinerary from '@/models/Itinerary';
@@ -102,7 +102,7 @@ export async function duplicateItinerary(id) {
         rest.tripTitle = `${rest.tripTitle} (Copy)`;
         rest.status = 'DRAFT';
         const duplicated = await Itinerary.create(rest);
-        revalidatePath('/admin/itineraries');
+        revalidatePath('/waypoint/itineraries');
         return { success: true, newId: duplicated._id.toString() };
     } catch (error) {
         console.error('Duplicate itinerary error:', error);
@@ -114,7 +114,7 @@ export async function deleteItinerary(id) {
     await dbConnect();
     try {
         await Itinerary.findByIdAndDelete(id);
-        revalidatePath('/admin/itineraries');
+        revalidatePath('/waypoint/itineraries');
         revalidatePath('/tour-packages');
         return { success: true };
     } catch (error) {

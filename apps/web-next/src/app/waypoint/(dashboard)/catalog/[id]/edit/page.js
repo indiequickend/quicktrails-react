@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
@@ -43,7 +43,7 @@ export default function EditCatalogItem() {
         const res = await updateCatalogItem(params.id, formData);
         if (res.success) {
             alert('Catalog item updated!');
-            router.push('/admin/catalog');
+            router.push('/waypoint/catalog');
         } else {
             alert('Failed to update item.');
         }
@@ -56,7 +56,7 @@ export default function EditCatalogItem() {
         <div>
             <div className="flex items-center justify-between mb-6">
                 <h1 className="text-2xl font-bold">Edit Catalog Item</h1>
-                <button onClick={() => router.push('/admin/catalog')} className="text-sm text-muted-foreground hover:text-foreground">&larr; Back to Catalog</button>
+                <button onClick={() => router.push('/waypoint/catalog')} className="text-sm text-muted-foreground hover:text-foreground">&larr; Back to Catalog</button>
             </div>
 
             <div className="bg-card border border-border rounded-2xl p-8 max-w-3xl">

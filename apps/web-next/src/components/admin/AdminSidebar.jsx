@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState } from 'react';
 import { usePathname } from 'next/navigation';
@@ -7,12 +7,12 @@ import { LayoutDashboard, Building2, Map, BookOpen, Inbox, Settings2, LogOut, Ch
 import { logout } from '@/lib/actions/auth';
 
 const navLinks = [
-    { href: '/admin', label: 'Dashboard', icon: LayoutDashboard },
-    { href: '/admin/properties', label: 'Properties', icon: Building2 },
-    { href: '/admin/itineraries', label: 'Itineraries', icon: Map },
-    { href: '/admin/catalog', label: 'Catalog', icon: BookOpen },
-    { href: '/admin/bookings', label: 'Bookings', icon: Inbox },
-    { href: '/admin/brand-settings', label: 'Brand Settings', icon: Settings2 },
+    { href: '/waypoint', label: 'Dashboard', icon: LayoutDashboard },
+    { href: '/waypoint/properties', label: 'Properties', icon: Building2 },
+    { href: '/waypoint/itineraries', label: 'Itineraries', icon: Map },
+    { href: '/waypoint/catalog', label: 'Catalog', icon: BookOpen },
+    { href: '/waypoint/bookings', label: 'Bookings', icon: Inbox },
+    { href: '/waypoint/brand-settings', label: 'Brand Settings', icon: Settings2 },
 ];
 
 export default function AdminSidebar() {

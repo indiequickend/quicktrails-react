@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import { Upload } from "lucide-react";
@@ -15,7 +15,7 @@ export default function SimpleUploadButton({ onUpload, label, className = "" }) 
         try {
             const fd = new FormData();
             fd.append("file", file);
-            const res = await fetch("/api/admin/upload", { method: "POST", body: fd });
+            const res = await fetch("/api/waypoint/upload", { method: "POST", body: fd });
             if (!res.ok) throw new Error("Upload failed");
             const result = await res.json();
             if (result.url) onUpload(result.url);

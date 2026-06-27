@@ -1,4 +1,4 @@
-import { SITE_URL } from "@/lib/constants";
+﻿import { SITE_URL } from "@/lib/constants";
 
 export default function robots() {
   return {
@@ -6,7 +6,7 @@ export default function robots() {
       {
         userAgent: "*",
         allow: "/",
-        disallow: ["/admin/"],
+        disallow: ["/waypoint/"],
       },
     ],
     sitemap: `${SITE_URL}/sitemap.xml`,

@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
@@ -40,7 +40,7 @@ export default function CatalogPage() {
         <div>
             <div className="flex items-center justify-between mb-6">
                 <h1 className="text-2xl font-bold">Master Catalog</h1>
-                <Link href="/admin/catalog/new" className="px-4 py-2 bg-gray-900 text-white text-sm font-medium rounded hover:bg-gray-800 transition shadow-sm">+ Add New Item</Link>
+                <Link href="/waypoint/catalog/new" className="px-4 py-2 bg-gray-900 text-white text-sm font-medium rounded hover:bg-gray-800 transition shadow-sm">+ Add New Item</Link>
             </div>
 
             <div className="bg-card border border-border rounded-2xl overflow-hidden">
@@ -70,7 +70,7 @@ export default function CatalogPage() {
                                     <td className="px-4 py-3 text-muted-foreground">{item.location}</td>
                                     <td className="px-4 py-3 text-muted-foreground">{item.estimatedDuration || '-'}</td>
                                     <td className="px-4 py-3 text-right flex items-center justify-end gap-2">
-                                        <Link href={`/admin/catalog/${item._id}/edit`} className="px-2 py-1 text-xs bg-muted text-foreground rounded hover:bg-border transition">Edit</Link>
+                                        <Link href={`/waypoint/catalog/${item._id}/edit`} className="px-2 py-1 text-xs bg-muted text-foreground rounded hover:bg-border transition">Edit</Link>
                                         <button onClick={() => handleDelete(item._id)} className="px-2 py-1 text-xs bg-red-50 text-red-600 rounded hover:bg-red-100 transition">Delete</button>
                                     </td>
                                 </tr>

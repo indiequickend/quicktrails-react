@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
@@ -44,7 +44,7 @@ export default function AdminPropertiesPage() {
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-bold">Properties</h1>
         <Link
-          href="/admin/properties/new"
+          href="/waypoint/properties/new"
           className="flex items-center gap-1.5 px-4 py-2 bg-primary text-primary-foreground text-sm font-medium rounded-xl hover:bg-primary/90 transition shadow-sm"
         >
           <Plus className="w-4 h-4" /> New property
@@ -94,7 +94,7 @@ export default function AdminPropertiesPage() {
                 <td className="px-4 py-3">{property.rating || '-'}</td>
                 <td className="px-4 py-3">
                   <div className="flex items-center gap-2">
-                    <Link href={`/admin/properties/${property._id}/edit`} className="p-2 hover:bg-muted rounded-lg">
+                    <Link href={`/waypoint/properties/${property._id}/edit`} className="p-2 hover:bg-muted rounded-lg">
                       <Pencil className="w-4 h-4" />
                     </Link>
                     <button

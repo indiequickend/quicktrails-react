@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
@@ -50,7 +50,7 @@ export default function ItinerariesPage() {
             <div className="flex items-center justify-between mb-6">
                 <h1 className="text-2xl font-bold">Itineraries</h1>
                 <Link
-                    href="/admin/itineraries/builder"
+                    href="/waypoint/itineraries/builder"
                     className="px-4 py-2 bg-amber-600 text-white text-sm font-medium rounded hover:bg-amber-700 transition shadow-sm"
                 >
                     + Create New
@@ -88,7 +88,7 @@ export default function ItinerariesPage() {
                             ) : items.map((item) => (
                                 <tr key={item._id} className="hover:bg-muted/40 transition">
                                     <td className="px-4 py-3 font-medium">
-                                        <button onClick={() => router.push(`/admin/itineraries/builder?id=${item._id}`)} className="hover:text-primary transition text-left">
+                                        <button onClick={() => router.push(`/waypoint/itineraries/builder?id=${item._id}`)} className="hover:text-primary transition text-left">
                                             {item.tripTitle}
                                         </button>
                                     </td>
@@ -115,7 +115,7 @@ export default function ItinerariesPage() {
                                             {isDuplicating === item._id ? 'Copying...' : 'Duplicate'}
                                         </button>
                                         <button
-                                            onClick={() => router.push(`/admin/itineraries/builder?id=${item._id}`)}
+                                            onClick={() => router.push(`/waypoint/itineraries/builder?id=${item._id}`)}
                                             className="text-xs text-amber-600 hover:text-amber-800 font-medium"
                                         >
                                             Edit

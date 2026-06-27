@@ -1,4 +1,4 @@
-"use server";
+﻿"use server";
 
 import bcrypt from "bcryptjs";
 import { redirect } from "next/navigation";
@@ -27,10 +27,10 @@ export async function login(state, formData) {
   }
 
   await createSession({ userId: user._id.toString(), role: user.role });
-  redirect("/admin");
+  redirect("/waypoint");
 }
 
 export async function logout() {
   await deleteSession();
-  redirect("/admin/login");
+  redirect("/waypoint/login");
 }

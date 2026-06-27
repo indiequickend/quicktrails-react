@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
@@ -23,7 +23,7 @@ export default function NewCatalogItem() {
         const res = await saveCatalogItem(formData);
         if (res.success) {
             alert('Catalog item saved!');
-            router.push('/admin/catalog');
+            router.push('/waypoint/catalog');
         } else {
             alert('Failed to save.');
         }
@@ -34,7 +34,7 @@ export default function NewCatalogItem() {
         <div>
             <div className="flex items-center justify-between mb-6">
                 <h1 className="text-2xl font-bold">Add to Master Catalog</h1>
-                <button onClick={() => router.push('/admin/catalog')} className="text-sm text-muted-foreground hover:text-foreground">&larr; Back to Catalog</button>
+                <button onClick={() => router.push('/waypoint/catalog')} className="text-sm text-muted-foreground hover:text-foreground">&larr; Back to Catalog</button>
             </div>
 
             <div className="bg-card border border-border rounded-2xl p-8 max-w-3xl">

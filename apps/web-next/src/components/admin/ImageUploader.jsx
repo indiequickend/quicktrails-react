@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useRef, useState } from "react";
 import Image from "next/image";
@@ -30,7 +30,7 @@ export default function ImageUploader({ name, initialImages = [], multiple = tru
       for (const file of files) {
         const fd = new FormData();
         fd.append("file", file);
-        const res = await fetch("/api/admin/upload", { method: "POST", body: fd });
+        const res = await fetch("/api/waypoint/upload", { method: "POST", body: fd });
         if (!res.ok) throw new Error("Upload failed");
         uploaded.push(await res.json());
       }

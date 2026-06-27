@@ -1,4 +1,4 @@
-"use server";
+﻿"use server";
 
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
@@ -72,8 +72,8 @@ export async function savePackage(prevState, formData) {
 
   revalidatePath("/tour-packages");
   revalidatePath(`/package/${slug}`);
-  revalidatePath("/admin/packages");
-  redirect("/admin/packages");
+  revalidatePath("/waypoint/packages");
+  redirect("/waypoint/packages");
 }
 
 export async function deletePackage(formData) {
@@ -88,6 +88,6 @@ export async function deletePackage(formData) {
   await Package.findByIdAndDelete(id);
 
   revalidatePath("/tour-packages");
-  revalidatePath("/admin/packages");
-  redirect("/admin/packages");
+  revalidatePath("/waypoint/packages");
+  redirect("/waypoint/packages");
 }
