@@ -9,6 +9,7 @@ import JsonLd from "@/components/JsonLd";
 import { getProperties } from "@/lib/data";
 import { getPublicItineraries } from "@/lib/actions/itineraries";
 import { SITE_URL, SITE_NAME, SITE_DESCRIPTION } from "@/lib/constants";
+import TrackPageView from "@/components/TrackPageView";
 
 // Regenerate this page in the background at most once an hour so new
 // properties/packages show up without a full redeploy (ISR).
@@ -53,6 +54,7 @@ export default async function HomePage() {
 
   return (
     <>
+      <TrackPageView path="/" slug="home" refType="page" />
       <JsonLd data={organizationSchema} />
       <Header transparent />
 

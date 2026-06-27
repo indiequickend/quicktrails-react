@@ -5,6 +5,7 @@ import Breadcrumbs from "@/components/Breadcrumbs";
 import JsonLd from "@/components/JsonLd";
 import { getPublicItineraries } from "@/lib/actions/itineraries";
 import { SITE_URL } from "@/lib/constants";
+import TrackPageView from "@/components/TrackPageView";
 
 export const revalidate = 3600;
 
@@ -35,6 +36,7 @@ export default async function PackagesPage() {
 
   return (
     <>
+      <TrackPageView path="/tour-packages" slug="tour-packages" refType="page" />
       <JsonLd data={itemListSchema} />
       <Header />
       <div className="pt-32 pb-24 bg-background">

@@ -10,6 +10,7 @@ import { getPublicItineraries } from "@/lib/actions/itineraries";
 import dbConnect from "@/lib/mongodb";
 import Itinerary from "@/models/Itinerary";
 import { SITE_URL } from "@/lib/constants";
+import TrackPageView from "@/components/TrackPageView";
 
 export const revalidate = 3600;
 
@@ -132,6 +133,7 @@ export default async function PackageDetailPage({ params }) {
 
   return (
     <>
+      <TrackPageView path={`/package/${slug}`} slug={slug} refType="package" />
       <JsonLd data={tourSchema} />
       <Header />
 

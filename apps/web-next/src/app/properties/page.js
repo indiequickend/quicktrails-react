@@ -5,6 +5,7 @@ import Breadcrumbs from "@/components/Breadcrumbs";
 import JsonLd from "@/components/JsonLd";
 import { getProperties } from "@/lib/data";
 import { SITE_URL } from "@/lib/constants";
+import TrackPageView from "@/components/TrackPageView";
 
 export const revalidate = 3600;
 
@@ -35,6 +36,7 @@ export default async function PropertiesPage() {
 
   return (
     <>
+      <TrackPageView path="/properties" slug="properties" refType="page" />
       <JsonLd data={itemListSchema} />
       <Header />
       <div className="pt-32 pb-24 bg-background">

@@ -13,6 +13,7 @@ import JsonLd from "@/components/JsonLd";
 import { getPropertyBySlug, getRelatedProperties, getReviewsForProperty, getAllSlugs } from "@/lib/data";
 import { formatINR, priceUnitLabel } from "@/lib/utils";
 import { SITE_URL } from "@/lib/constants";
+import TrackPageView from "@/components/TrackPageView";
 
 export const revalidate = 3600;
 
@@ -103,6 +104,7 @@ export default async function PropertyDetailPage({ params }) {
 
   return (
     <>
+      <TrackPageView path={`/property/${property.slug}`} slug={property.slug} refType="property" />
       <JsonLd data={hotelSchema} />
       <Header />
 
