@@ -11,9 +11,10 @@ function toPlain(doc) {
   return JSON.parse(JSON.stringify(doc));
 }
 
-export async function getProperties({ limit, sort = "-rating" } = {}) {
+export async function getProperties({ limit, sort = "-rating", location } = {}) {
   await dbConnect();
-  let query = Property.find().sort(sort);
+  const filter = location ? { location: { $regex: location, $options: "i" } } : {};
+  let query = Property.find(filter).sort(sort);
   if (limit) query = query.limit(limit);
   const docs = await query.lean();
   return toPlain(docs);
