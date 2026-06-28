@@ -35,6 +35,7 @@ const itinerarySchema = new mongoose.Schema({
     totalPrice: String,
     terms: String,
     status: { type: String, enum: ['DRAFT', 'FINALIZED'], default: 'DRAFT' },
+    destinations: [{ type: String }],
 }, { timestamps: true });
 
 // Delete the cached model so schema changes are always picked up without a restart

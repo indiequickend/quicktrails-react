@@ -1,14 +1,16 @@
 import { getProperties } from "@/lib/data";
 import { getPublicItineraries } from "@/lib/actions/itineraries";
+import { getPublicDestinations } from "@/lib/actions/destinations";
 import { SITE_URL, SITE_NAME, SITE_DESCRIPTION } from "@/lib/constants";
 import { priceUnitLabel } from "@/lib/utils";
 
 export const revalidate = 3600;
 
 export async function GET() {
-  const [properties, itineraries] = await Promise.all([
+  const [properties, itineraries, destinations] = await Promise.all([
     getProperties(),
     getPublicItineraries(200),
+    getPublicDestinations(),
   ]);
 
   const lines = [];
@@ -23,6 +25,21 @@ export async function GET() {
   lines.push(`- [About](${SITE_URL}/about): Company background.`);
   lines.push(`- [Contact](${SITE_URL}/contact): Enquiry/booking form.`);
   lines.push("");
+
+  if (destinations.length > 0) {
+    lines.push("## Destinations");
+    const regions = destinations.filter(d => !d.parentSlug);
+    const cities = destinations.filter(d => !!d.parentSlug);
+    for (const d of regions) {
+      const childNames = cities.filter(c => c.parentSlug === d.slug).map(c => c.name).join(", ");
+      const childStr = childNames ? ` Includes: ${childNames}.` : "";
+      lines.push(`- [${d.name}](${SITE_URL}/destination/${d.slug}): Travel guide for ${d.name}.${childStr}${d.tagline ? " " + d.tagline : ""}`);
+    }
+    for (const d of cities) {
+      lines.push(`- [${d.name}](${SITE_URL}/destination/${d.slug}): Hotels and tours in ${d.name}.${d.tagline ? " " + d.tagline : ""}`);
+    }
+    lines.push("");
+  }
 
   lines.push("## Properties");
   for (const p of properties) {

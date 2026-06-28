@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
-import { LayoutDashboard, Building2, Map, BookOpen, Inbox, Settings2, LogOut, ChevronLeft, ChevronRight } from 'lucide-react';
+import { LayoutDashboard, Building2, Map, BookOpen, Inbox, Settings2, LogOut, ChevronLeft, ChevronRight, Compass } from 'lucide-react';
 import { logout } from '@/lib/actions/auth';
 
 const navLinks = [
@@ -11,6 +11,7 @@ const navLinks = [
     { href: '/waypoint/properties', label: 'Properties', icon: Building2 },
     { href: '/waypoint/itineraries', label: 'Itineraries', icon: Map },
     { href: '/waypoint/catalog', label: 'Catalog', icon: BookOpen },
+    { href: '/waypoint/destinations', label: 'Destinations', icon: Compass },
     { href: '/waypoint/bookings', label: 'Bookings', icon: Inbox },
     { href: '/waypoint/brand-settings', label: 'Brand Settings', icon: Settings2 },
 ];

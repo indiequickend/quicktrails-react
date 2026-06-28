@@ -73,3 +73,10 @@ export async function getAllSlugs() {
   ]);
   return { properties: toPlain(properties), packages: toPlain(packages) };
 }
+
+export async function getDestinationSlugs() {
+  await dbConnect();
+  const Destination = (await import("@/models/Destination")).default;
+  const docs = await Destination.find({ isActive: true }).select("slug updatedAt parentSlug").lean();
+  return toPlain(docs);
+}

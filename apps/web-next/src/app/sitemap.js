@@ -1,4 +1,4 @@
-import { getAllSlugs } from "@/lib/data";
+import { getAllSlugs, getDestinationSlugs } from "@/lib/data";
 import { SITE_URL } from "@/lib/constants";
 
 // Real server-rendered sitemap.xml (Next.js file convention) -- generated
@@ -8,7 +8,10 @@ import { SITE_URL } from "@/lib/constants";
 export const revalidate = 3600;
 
 export default async function sitemap() {
-  const { properties, packages } = await getAllSlugs();
+  const [{ properties, packages }, destinations] = await Promise.all([
+    getAllSlugs(),
+    getDestinationSlugs(),
+  ]);
 
   const staticRoutes = [
     { url: `${SITE_URL}/`, changeFrequency: "weekly", priority: 1.0 },
@@ -35,5 +38,13 @@ export default async function sitemap() {
     priority: 0.8,
   }));
 
-  return [...staticRoutes, ...propertyRoutes, ...packageRoutes];
+  // Region pages get higher priority than city pages — hub-and-spoke hierarchy
+  const destinationRoutes = destinations.map((d) => ({
+    url: `${SITE_URL}/destination/${d.slug}`,
+    lastModified: d.updatedAt,
+    changeFrequency: "weekly",
+    priority: d.parentSlug ? 0.8 : 0.9,
+  }));
+
+  return [...staticRoutes, ...destinationRoutes, ...propertyRoutes, ...packageRoutes];
 }

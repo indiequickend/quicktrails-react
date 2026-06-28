@@ -153,7 +153,7 @@ export default async function PropertyDetailPage({ params }) {
                 <div className="mb-8">
                   <h2 className="text-2xl font-semibold mb-4">About this property</h2>
                   <div
-                    className="text-muted-foreground leading-relaxed prose prose-sm max-w-none"
+                    className="rich-content text-sm"
                     dangerouslySetInnerHTML={{ __html: property.description }}
                   />
                 </div>

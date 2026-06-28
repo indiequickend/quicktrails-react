@@ -282,7 +282,7 @@ export default async function PackageDetailPage({ params }) {
                 <section className="mb-16 pt-8 border-t border-border">
                   <h3 className="text-2xl font-serif font-bold text-foreground mb-6">Terms & Conditions</h3>
                   <div
-                    className="text-muted-foreground leading-relaxed space-y-3 text-sm [&>ul]:list-disc [&>ul]:ml-4 [&>ol]:list-decimal [&>ol]:ml-4 [&>p]:mb-2 [&_strong]:font-bold [&_strong]:text-foreground [&_b]:font-bold [&_b]:text-foreground"
+                    className="rich-content text-sm"
                     dangerouslySetInnerHTML={{ __html: itinerary.terms }}
                   />
                 </section>

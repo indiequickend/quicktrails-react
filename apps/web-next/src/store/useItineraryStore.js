@@ -13,8 +13,10 @@ export const useItineraryStore = create((set) => ({
     status: 'DRAFT',
     b2bDetails: { isB2B: false, agencyName: '', logoUrl: '' },
     brandSettings: { companyName: 'QuickTrails', primaryLogoUrl: '' },
+    destinations: [],
 
     setTripTitle: (title) => set({ tripTitle: title }),
+    setDestinations: (destinations) => set({ destinations }),
     setSlug: (slug) => set({ slug }),
     setStatus: (status) => set({ status }),
     setTotalPrice: (price) => set({ totalPrice: price }),
@@ -106,6 +108,7 @@ export const useItineraryStore = create((set) => ({
         inclusions: data.inclusions || [],
         exclusions: data.exclusions || [],
         terms: data.terms || '',
+        destinations: data.destinations || [],
     }),
 
     reset: () => set({
@@ -117,5 +120,6 @@ export const useItineraryStore = create((set) => ({
         status: 'DRAFT',
         b2bDetails: { isB2B: false, agencyName: '', logoUrl: '' },
         days: [],
+        destinations: [],
     }),
 }));

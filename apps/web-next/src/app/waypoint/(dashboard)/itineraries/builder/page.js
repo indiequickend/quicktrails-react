@@ -6,6 +6,7 @@ import dynamic from 'next/dynamic';
 import { getItineraryById, saveItinerary, createItinerary } from '@/lib/actions/itineraries';
 import { getCatalogItems } from '@/lib/actions/catalog';
 import { getBrandSettings } from '@/lib/actions/brand-settings';
+import { getPublicDestinations } from '@/lib/actions/destinations';
 import { useItineraryStore } from '@/store/useItineraryStore';
 import B2BPanel from '@/components/B2BPanel';
 import SimpleUploadButton from '@/components/admin/SimpleUploadButton';
@@ -17,6 +18,7 @@ function BuilderWorkspace() {
     const searchParams = useSearchParams();
     const itineraryId = searchParams.get('id') || null;
 
+    const [availableDestinations, setAvailableDestinations] = useState([]);
     const [isMounted, setIsMounted] = useState(false);
     const [isLoading, setIsLoading] = useState(!!itineraryId);
     const [isSaving, setIsSaving] = useState(false);
@@ -45,6 +47,7 @@ function BuilderWorkspace() {
         exclusions, updateExclusion, addExclusion, removeExclusion, setExclusions,
         terms, setTerms,
         status, setStatus,
+        destinations, setDestinations,
         loadItinerary, reset,
     } = useItineraryStore();
 
@@ -53,7 +56,8 @@ function BuilderWorkspace() {
     useEffect(() => {
         setTimeout(() => setIsMounted(true), 100);
         async function init() {
-            const brandData = await getBrandSettings();
+            const [brandData, destList] = await Promise.all([getBrandSettings(), getPublicDestinations()]);
+            setAvailableDestinations(destList || []);
             if (brandData) {
                 setBrandSettings({
                     companyName: brandData.companyName || '',
@@ -114,6 +118,7 @@ function BuilderWorkspace() {
         tripTitle, slug, totalPrice, durationText, b2bDetails, days, inclusions, exclusions, terms,
         heroGallery: heroImage ? [heroImage] : [],
         status: overrideStatus ?? status,
+        destinations,
     });
 
     const handleSave = async () => {
@@ -272,6 +277,32 @@ function BuilderWorkspace() {
                             </div>
 
                             <B2BPanel />
+
+                            {/* Destinations */}
+                            <div className="mt-3 pt-3 border-t border-gray-100">
+                                <label className="block text-xs font-bold text-gray-900 mb-2">Destinations</label>
+                                {availableDestinations.length === 0 ? (
+                                    <p className="text-[10px] text-gray-400">No destinations yet. <a href="/waypoint/destinations/new" target="_blank" className="underline text-amber-600">Create one</a> to link this itinerary.</p>
+                                ) : (
+                                    <div className="space-y-1 max-h-32 overflow-y-auto">
+                                        {availableDestinations.map((dest) => (
+                                            <label key={dest._id} className="flex items-center gap-2 text-xs cursor-pointer hover:bg-gray-50 rounded p-1">
+                                                <input
+                                                    type="checkbox"
+                                                    checked={destinations.includes(dest.slug)}
+                                                    onChange={(e) => {
+                                                        if (e.target.checked) setDestinations([...destinations, dest.slug]);
+                                                        else setDestinations(destinations.filter(s => s !== dest.slug));
+                                                    }}
+                                                    className="accent-amber-500"
+                                                />
+                                                <span className="text-gray-700">{dest.name}</span>
+                                                <span className="text-gray-400 font-mono text-[9px]">{dest.slug}</span>
+                                            </label>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
 
                             {/* Inclusions */}
                             <div className="mt-3 pt-3 border-t border-gray-100">
