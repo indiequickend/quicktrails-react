@@ -15,6 +15,7 @@ export default async function sitemap() {
 
   const staticRoutes = [
     { url: `${SITE_URL}/`, changeFrequency: "weekly", priority: 1.0 },
+    { url: `${SITE_URL}/destinations`, changeFrequency: "weekly", priority: 0.9 },
     { url: `${SITE_URL}/properties`, changeFrequency: "weekly", priority: 0.9 },
     { url: `${SITE_URL}/tour-packages`, changeFrequency: "weekly", priority: 0.9 },
     { url: `${SITE_URL}/about`, changeFrequency: "monthly", priority: 0.7 },

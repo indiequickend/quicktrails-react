@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Mail, Phone, MapPin } from "lucide-react";
 import Image from "next/image";
 import { getBrandSettings } from "@/lib/actions/brand-settings";
+import { getPublicDestinations } from "@/lib/actions/destinations";
 
 // lucide-react dropped brand/logo icons (trademark reasons) -- small inline
 // SVGs instead of pulling in a separate brand-icon package for three links.
@@ -33,13 +34,18 @@ function TwitterIcon(props) {
 
 export default async function Footer() {
   const currentYear = new Date().getFullYear();
-  const brandSettings = await getBrandSettings().catch(() => null);
+  const [brandSettings, allDestinations] = await Promise.all([
+    getBrandSettings().catch(() => null),
+    getPublicDestinations().catch(() => []),
+  ]);
   const logoUrl = brandSettings?.primaryLogoUrl || null;
+  // Show only top-level regions in the footer (max 6) to keep it concise
+  const footerDestinations = allDestinations.filter((d) => !d.parentSlug).slice(0, 6);
 
   return (
     <footer className="bg-slate-950 text-slate-100">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10">
           <div>
             <div className="flex items-center space-x-2 mb-4">
               {logoUrl ? (
@@ -73,6 +79,30 @@ export default async function Footer() {
               <li><Link href="/about" className="text-slate-400 hover:text-primary transition-colors">About</Link></li>
               <li><Link href="/contact" className="text-slate-400 hover:text-primary transition-colors">Contact</Link></li>
             </ul>
+          </div>
+
+          <div>
+            <h3 className="font-semibold text-lg mb-4">Destinations</h3>
+            {footerDestinations.length > 0 ? (
+              <ul className="space-y-3">
+                {footerDestinations.map((dest) => (
+                  <li key={dest._id}>
+                    <Link href={`/destination/${dest.slug}`} className="text-slate-400 hover:text-primary transition-colors">
+                      {dest.name}
+                    </Link>
+                  </li>
+                ))}
+                <li>
+                  <Link href="/destinations" className="text-primary hover:text-primary/80 transition-colors text-sm font-medium">
+                    View all →
+                  </Link>
+                </li>
+              </ul>
+            ) : (
+              <ul className="space-y-3">
+                <li><Link href="/destinations" className="text-slate-400 hover:text-primary transition-colors">Explore destinations</Link></li>
+              </ul>
+            )}
           </div>
 
           <div>

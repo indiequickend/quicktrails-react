@@ -8,6 +8,7 @@ import ItineraryCard from "@/components/ItineraryCard";
 import JsonLd from "@/components/JsonLd";
 import { getProperties } from "@/lib/data";
 import { getPublicItineraries } from "@/lib/actions/itineraries";
+import { getPublicDestinations } from "@/lib/actions/destinations";
 import { SITE_URL, SITE_NAME, SITE_DESCRIPTION } from "@/lib/constants";
 import TrackPageView from "@/components/TrackPageView";
 
@@ -29,10 +30,13 @@ const features = [
 ];
 
 export default async function HomePage() {
-  const [properties, packages] = await Promise.all([
+  const [properties, packages, allDestinations] = await Promise.all([
     getProperties({ limit: 4, sort: "-updatedAt" }),
     getPublicItineraries(4),
+    getPublicDestinations(),
   ]);
+  // Show region-level destinations on homepage (no parent), max 8
+  const featuredDestinations = allDestinations.filter((d) => !d.parentSlug).slice(0, 8);
 
   const organizationSchema = {
     "@context": "https://schema.org",
@@ -111,6 +115,52 @@ export default async function HomePage() {
           </div>
         </div>
       </section>
+
+      {featuredDestinations.length > 0 && (
+        <section className="py-24 bg-background">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center mb-12">
+              <h2 className="text-4xl md:text-5xl font-bold mb-4 text-balance" style={{ letterSpacing: "-0.02em" }}>
+                Popular destinations
+              </h2>
+              <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+                Explore India&apos;s most breathtaking travel destinations
+              </p>
+            </div>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+              {featuredDestinations.map((dest) => (
+                <a
+                  key={dest._id}
+                  href={`/destination/${dest.slug}`}
+                  className="group relative rounded-2xl overflow-hidden aspect-[4/3] bg-slate-800 shadow-sm hover:shadow-lg transition-shadow"
+                >
+                  {dest.heroImage && (
+                    <Image
+                      src={dest.heroImage}
+                      alt={dest.name}
+                      fill
+                      sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                      className="object-cover group-hover:scale-105 transition-transform duration-500"
+                    />
+                  )}
+                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/20 to-transparent" />
+                  <div className="absolute bottom-0 left-0 right-0 p-4">
+                    <p className="text-white font-bold text-lg leading-tight">{dest.name}</p>
+                    {dest.tagline && (
+                      <p className="text-slate-300 text-xs mt-1 line-clamp-1">{dest.tagline}</p>
+                    )}
+                  </div>
+                </a>
+              ))}
+            </div>
+            <div className="text-center mt-10">
+              <Button href="/destinations" size="lg" variant="outline">
+                View all destinations <ArrowRight className="ml-2 w-5 h-5" />
+              </Button>
+            </div>
+          </div>
+        </section>
+      )}
 
       <section className="py-24 bg-muted">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
