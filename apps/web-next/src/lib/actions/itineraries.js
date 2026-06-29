@@ -32,6 +32,8 @@ export async function createItinerary(itineraryData) {
         const base = itineraryData.slug ? itineraryData.slug.trim() : toSlug(itineraryData.tripTitle);
         const slug = await uniqueSlug(base);
         const newItinerary = await Itinerary.create({ ...itineraryData, slug });
+        revalidatePath('/tour-packages');
+        revalidatePath('/sitemap.xml');
         return { success: true, newId: newItinerary._id.toString() };
     } catch (error) {
         console.error('Create itinerary error:', error);
@@ -52,9 +54,13 @@ export async function saveItinerary(id, itineraryData) {
         } else {
             slug = existing?.slug || await uniqueSlug(toSlug(itineraryData.tripTitle), id);
         }
+        const oldSlug = existing?.slug;
         await Itinerary.findByIdAndUpdate(id, { $set: { ...itineraryData, slug } }, { new: true });
+        if (oldSlug && oldSlug !== slug) revalidatePath(`/package/${oldSlug}`);
         revalidatePath('/');
         revalidatePath('/tour-packages');
+        revalidatePath(`/package/${slug}`);
+        revalidatePath('/sitemap.xml');
         return { success: true };
     } catch (error) {
         console.error('Save itinerary error:', error);
@@ -113,9 +119,12 @@ export async function duplicateItinerary(id) {
 export async function deleteItinerary(id) {
     await dbConnect();
     try {
+        const doc = await Itinerary.findById(id).select('slug').lean();
         await Itinerary.findByIdAndDelete(id);
+        if (doc?.slug) revalidatePath(`/package/${doc.slug}`);
         revalidatePath('/waypoint/itineraries');
         revalidatePath('/tour-packages');
+        revalidatePath('/sitemap.xml');
         return { success: true };
     } catch (error) {
         console.error('Delete itinerary error:', error);

@@ -69,7 +69,7 @@ export async function getAdminProperties(page = 1, limit = 20, search = '') {
   }
 }
 
-export async function saveProperty(prevState, formData) {
+export async function saveProperty(_prevState, formData) {
   await verifyAdminSession();
   await dbConnect();
 
@@ -97,7 +97,12 @@ export async function saveProperty(prevState, formData) {
   data.slug = slug;
 
   if (id) {
+    const existing = await Property.findById(id).select("slug").lean();
+    const oldSlug = existing?.slug;
     await Property.findByIdAndUpdate(id, data);
+    if (oldSlug && oldSlug !== slug) {
+      revalidatePath(`/property/${oldSlug}`);
+    }
   } else {
     await Property.create(data);
   }
@@ -105,6 +110,7 @@ export async function saveProperty(prevState, formData) {
   revalidatePath("/properties");
   revalidatePath(`/property/${slug}`);
   revalidatePath("/waypoint/properties");
+  revalidatePath("/sitemap.xml");
   redirect("/waypoint/properties");
 }
 
@@ -120,6 +126,8 @@ export async function deleteProperty(formData) {
   }
 
   revalidatePath("/properties");
+  if (property?.slug) revalidatePath(`/property/${property.slug}`);
   revalidatePath("/waypoint/properties");
+  revalidatePath("/sitemap.xml");
   redirect("/waypoint/properties");
 }
