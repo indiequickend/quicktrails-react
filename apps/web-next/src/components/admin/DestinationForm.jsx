@@ -7,6 +7,7 @@ import { saveDestination } from '@/lib/actions/destinations';
 import { generateDestinationSEO, generateDestinationDescription } from '@/lib/actions/seo-generator';
 import { slugify } from '@/lib/slugify';
 import SimpleUploadButton from '@/components/admin/SimpleUploadButton';
+import Link from 'next/link';
 
 const TinyMCEEditor = dynamic(() => import('@/components/TinyMCEEditor'), { ssr: false });
 
@@ -226,7 +227,7 @@ export default function DestinationForm({ destination, allDestinations = [] }) {
               )}
             </button>
             {genDescError && <p className="text-xs text-red-600 text-right">{genDescError}</p>}
-            {!genDescError && <p className="text-xs text-muted-foreground">~700 words · free · gemini-2.0-flash-lite</p>}
+            {!genDescError && <p className="text-xs text-muted-foreground">~700 words · claude-haiku-4-5</p>}
           </div>
         </div>
         <div className="bg-white rounded-lg border border-border">
@@ -255,11 +256,11 @@ export default function DestinationForm({ destination, allDestinations = [] }) {
               {isGenerating ? (
                 <><Loader2 className="w-4 h-4 animate-spin" /> Generating…</>
               ) : (
-                <><Sparkles className="w-4 h-4" /> Generate with Gemini</>
+                <><Sparkles className="w-4 h-4" /> Generate with AI</>
               )}
             </button>
             {genError && <p className="text-xs text-red-600">{genError}</p>}
-            {!genError && <p className="text-xs text-muted-foreground">Free · gemini-2.0-flash-lite</p>}
+            {!genError && <p className="text-xs text-muted-foreground">claude-haiku-4-5</p>}
           </div>
         </div>
 
@@ -348,7 +349,7 @@ export default function DestinationForm({ destination, allDestinations = [] }) {
         >
           {isPending ? 'Saving…' : isEdit ? 'Update destination' : 'Create destination'}
         </button>
-        <a href="/waypoint/destinations" className="px-6 py-3 text-sm text-muted-foreground hover:text-foreground transition">Cancel</a>
+        <Link href="/waypoint/destinations" className="px-6 py-3 text-sm text-muted-foreground hover:text-foreground transition">Cancel</Link>
       </div>
     </form>
   );
