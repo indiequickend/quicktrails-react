@@ -1,3 +1,4 @@
+import { Fragment } from "react";
 import { verifyAdminSession } from "@/lib/dal";
 import dbConnect from "@/lib/mongodb";
 import Booking from "@/models/Booking";
@@ -93,8 +94,8 @@ export default async function AdminBookingsPage() {
           </thead>
           <tbody>
             {bookings.map((b) => (
-              <>
-                <tr key={b._id.toString()} className="border-t border-border align-top">
+              <Fragment key={b._id.toString()}>
+                <tr className="border-t border-border align-top">
                   <td className="px-4 py-3 font-medium">{b.guestName}</td>
                   <td className="px-4 py-3">
                     <div>{b.email}</div>
@@ -133,8 +134,8 @@ export default async function AdminBookingsPage() {
                     </form>
                   </td>
                 </tr>
-                {b.bookingType === 'self_plan' && <SelfPlanDetail key={`detail-${b._id}`} b={b} />}
-              </>
+                {b.bookingType === 'self_plan' && <SelfPlanDetail b={b} />}
+              </Fragment>
             ))}
             {bookings.length === 0 && (
               <tr>
