@@ -15,6 +15,8 @@ const navLinks = [
   { path: "/contact", label: "Contact" },
 ];
 
+const CTA_PATH = "/plan-your-trip";
+
 // `transparent`: only true for pages with a full-bleed dark hero behind the
 // header (currently just the homepage). Everywhere else the header sits
 // directly on a white page background from scroll position 0, so it needs
@@ -81,6 +83,17 @@ export default function Header({ transparent = false }) {
                 {link.label}
               </Link>
             ))}
+            <Link
+              href={CTA_PATH}
+              className={`ml-2 px-4 py-2 rounded-lg font-semibold text-sm transition-all duration-200 ${pathname === CTA_PATH
+                ? "bg-amber-500 text-slate-950"
+                : solid
+                  ? "bg-amber-500 hover:bg-amber-400 text-slate-950"
+                  : "bg-amber-500/90 hover:bg-amber-400 text-slate-950"
+                }`}
+            >
+              Plan a Trip
+            </Link>
           </nav>
 
           <button
@@ -110,6 +123,12 @@ export default function Header({ transparent = false }) {
                 {link.label}
               </Link>
             ))}
+            <Link
+              href={CTA_PATH}
+              className="block px-4 py-3 rounded-lg font-semibold bg-amber-500 hover:bg-amber-400 text-slate-950 transition-all duration-200 text-center"
+            >
+              Plan a Trip
+            </Link>
           </nav>
         </div>
       )}

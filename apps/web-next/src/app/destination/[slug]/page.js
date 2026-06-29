@@ -285,15 +285,23 @@ export default async function DestinationPage({ params }) {
       <section className="py-20 bg-slate-950 text-white">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-3xl font-bold mb-4">Planning a trip to {dest.name}?</h2>
-          <p className="text-slate-300 text-lg mb-8">
-            Let our travel experts build a custom itinerary — handpicked stays, curated activities, no hassle.
+          <p className="text-slate-300 text-lg mb-6">
+            Tell us your dates, group size, and preferences. We'll send a personalised quote within 24 hours.
           </p>
-          <Link
-            href="/#enquiry"
-            className="inline-flex items-center gap-2 px-8 py-4 bg-amber-500 hover:bg-amber-400 text-slate-950 font-semibold rounded-xl transition text-lg"
-          >
-            Get a custom itinerary <ArrowRight className="w-5 h-5" />
-          </Link>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Link
+              href={`/plan-your-trip?destination=${encodeURIComponent(dest.name)}`}
+              className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-amber-500 hover:bg-amber-400 text-slate-950 font-semibold rounded-xl transition text-lg"
+            >
+              Plan your trip to {dest.name} <ArrowRight className="w-5 h-5" />
+            </Link>
+            <Link
+              href="/contact"
+              className="inline-flex items-center justify-center gap-2 px-8 py-4 border border-slate-600 hover:border-slate-400 text-white rounded-xl transition text-lg"
+            >
+              Talk to us directly
+            </Link>
+          </div>
         </div>
       </section>
 

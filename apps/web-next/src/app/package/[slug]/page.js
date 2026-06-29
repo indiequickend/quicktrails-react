@@ -157,9 +157,9 @@ export default async function PackageDetailPage({ params }) {
         {/* Trip info — bottom left */}
         <div className="absolute bottom-12 left-8 sm:left-16 right-8 sm:right-16 z-10">
           <div className="max-w-3xl">
-            <Breadcrumbs
+            {/* <Breadcrumbs
               items={[{ name: "Home", path: "/" }, { name: "Tour Packages", path: "/tour-packages" }, { name: itinerary.tripTitle, path: `/package/${slug}` }]}
-            />
+            /> */}
             <p className="text-amber-400 font-bold uppercase tracking-widest text-sm mb-3 mt-4 flex items-center gap-2">
               <span className="w-8 h-0.5 bg-amber-400 inline-block"></span>
               {itinerary.durationText || ''}

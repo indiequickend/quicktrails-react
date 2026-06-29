@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { ArrowRight, MapPin, BadgeCheck, Sparkles, Award } from "lucide-react";
+import { ArrowRight, MapPin, BadgeCheck, Sparkles, Award, Tag } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -9,6 +9,7 @@ import JsonLd from "@/components/JsonLd";
 import { getProperties } from "@/lib/data";
 import { getPublicItineraries } from "@/lib/actions/itineraries";
 import { getPublicDestinations } from "@/lib/actions/destinations";
+import { getSiteConfig } from "@/lib/actions/siteConfig";
 import { SITE_URL, SITE_NAME, SITE_DESCRIPTION } from "@/lib/constants";
 import TrackPageView from "@/components/TrackPageView";
 
@@ -30,11 +31,13 @@ const features = [
 ];
 
 export default async function HomePage() {
-  const [properties, packages, allDestinations] = await Promise.all([
+  const [properties, packages, allDestinations, siteConfig] = await Promise.all([
     getProperties({ limit: 4, sort: "-updatedAt" }),
     getPublicItineraries(4),
     getPublicDestinations(),
+    getSiteConfig(),
   ]);
+  const discount = siteConfig?.selfPlanDiscount;
   // Show region-level destinations on homepage (no parent), max 8
   const featuredDestinations = allDestinations.filter((d) => !d.parentSlug).slice(0, 8);
 
@@ -112,6 +115,42 @@ export default async function HomePage() {
                 <p className="text-muted-foreground">{feature.description}</p>
               </div>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Plan Your Trip CTA */}
+      <section className="py-20 bg-slate-950 text-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col lg:flex-row items-center justify-between gap-10">
+            <div className="max-w-xl">
+              <div className="inline-flex items-center gap-2 bg-amber-400/10 border border-amber-400/30 text-amber-400 text-xs font-semibold px-3 py-1.5 rounded-full mb-4">
+                <Tag className="w-3.5 h-3.5" />
+                {discount?.enabled && discount?.value > 0
+                  ? (discount.type === 'percentage'
+                    ? `Save ${discount.value}% when you plan yourself`
+                    : `Save ₹${discount.value.toLocaleString('en-IN')} when you plan yourself`)
+                  : 'Exclusive self-plan discount'}
+              </div>
+              <h2 className="text-4xl md:text-5xl font-bold mb-4 text-balance" style={{ letterSpacing: '-0.02em' }}>
+                Know what you want? Build it yourself.
+              </h2>
+              <p className="text-slate-300 text-lg leading-relaxed mb-2">
+                Pick your destinations, dates, group size, and vehicle. We take your plan and turn it into a confirmed booking — no back-and-forth, no waiting for us to draft an itinerary.
+              </p>
+              {discount?.enabled && discount?.value > 0 && (
+                <p className="text-amber-400 font-medium">
+                  Because you've done the planning work, we pass the savings on to you.
+                </p>
+              )}
+            </div>
+            <div className="flex flex-col items-center gap-4 shrink-0">
+              <Button href="/plan-your-trip" size="lg" className="text-lg px-8 py-6 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold border-0">
+                Start planning your trip
+                <ArrowRight className="ml-2 w-5 h-5" />
+              </Button>
+              <p className="text-slate-400 text-sm">Takes about 2 minutes · Quote within 24 hours</p>
+            </div>
           </div>
         </div>
       </section>
