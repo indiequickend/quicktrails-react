@@ -1,6 +1,7 @@
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import PlanTripWizard from '@/components/PlanTripWizard';
+import TrackPageView from '@/components/TrackPageView';
 import { getPublicDestinations } from '@/lib/actions/destinations';
 import { getSiteConfig } from '@/lib/actions/siteConfig';
 import { SITE_URL } from '@/lib/constants';
@@ -23,6 +24,7 @@ export default async function PlanYourTripPage({ searchParams }) {
   return (
     <>
       <Header />
+      <TrackPageView path="/plan-your-trip" refType="page" />
       <main className="min-h-screen bg-muted pt-24 pb-16">
         <div className="max-w-2xl mx-auto px-4 sm:px-6">
           <div className="text-center mb-8">

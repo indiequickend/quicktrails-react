@@ -259,16 +259,16 @@ export default async function AdminDashboardPage() {
               const heightPct = Math.max((day.count / maxTrendCount) * 100, day.count > 0 ? 8 : 2);
               const isToday = day.date === todayStr;
               return (
-                <div key={day.date} className="flex-1 flex flex-col items-center gap-1 group relative">
+                <div
+                  key={day.date}
+                  className={`flex-1 rounded-sm transition-all group relative ${isToday ? "bg-primary" : "bg-primary/30 hover:bg-primary/60"}`}
+                  style={{ height: `${heightPct}%` }}
+                >
                   {day.count > 0 && (
                     <div className="absolute -top-6 left-1/2 -translate-x-1/2 bg-foreground text-background text-xs px-1.5 py-0.5 rounded opacity-0 group-hover:opacity-100 transition pointer-events-none whitespace-nowrap z-10">
                       {day.count}
                     </div>
                   )}
-                  <div
-                    className={`w-full rounded-sm transition-all ${isToday ? "bg-primary" : "bg-primary/30 group-hover:bg-primary/60"}`}
-                    style={{ height: `${heightPct}%` }}
-                  />
                 </div>
               );
             })}
@@ -419,15 +419,23 @@ export default async function AdminDashboardPage() {
             <tbody>
               {recentBookings.map((b) => {
                 const cfg = STATUS_CONFIG[b.status] ?? STATUS_CONFIG.new;
-                const subject = b.property?.name ?? (b.bookingType === "package" ? "Package enquiry" : "General enquiry");
+                const isSelfPlan = b.bookingType === "self_plan";
+                const travelers = isSelfPlan && b.adults != null
+                  ? `${b.adults}A${b.childrenUnder8 ? `+${b.childrenUnder8}C` : ''}`
+                  : b.numberOfTravelers;
                 return (
                   <tr key={b._id.toString()} className="border-t border-border hover:bg-muted/40 transition">
                     <td className="px-6 py-3">
                       <div className="font-medium">{b.guestName}</div>
                       <div className="text-muted-foreground text-xs">{b.email}</div>
                     </td>
-                    <td className="px-6 py-3 text-muted-foreground">{subject}</td>
-                    <td className="px-6 py-3 text-muted-foreground">{b.numberOfTravelers}</td>
+                    <td className="px-6 py-3">
+                      {isSelfPlan
+                        ? <span className="inline-flex items-center gap-1 text-xs font-medium bg-violet-100 text-violet-700 px-2 py-0.5 rounded-full">Self-planned trip</span>
+                        : <span className="text-muted-foreground">{b.property?.name ?? (b.bookingType === "package" ? "Package enquiry" : "General enquiry")}</span>
+                      }
+                    </td>
+                    <td className="px-6 py-3 text-muted-foreground">{travelers}</td>
                     <td className="px-6 py-3 text-muted-foreground whitespace-nowrap">{timeAgo(b.createdAt, nowMs)}</td>
                     <td className="px-6 py-3">
                       <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border ${cfg.color}`}>
