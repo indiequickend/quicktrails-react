@@ -7,7 +7,7 @@ export default function ItineraryCard({ itinerary }) {
 
     return (
         <Link href={`/package/${itinerary.slug || itinerary._id}`} className="group block h-full">
-            <div className="bg-card rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300 hover:-translate-y-1 flex flex-col h-full">
+            <div className="bg-card rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300 flex flex-col h-full">
                 <div className="relative h-56 overflow-hidden flex-shrink-0 bg-muted">
                     {heroImage ? (
                         <img
