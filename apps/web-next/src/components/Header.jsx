@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Menu, X } from "lucide-react";
+import { Menu, X, Search } from "lucide-react";
 import Image from "next/image";
 
 const navLinks = [
@@ -84,6 +84,18 @@ export default function Header({ transparent = false }) {
               </Link>
             ))}
             <Link
+              href="/search"
+              aria-label="Search"
+              className={`h-10 w-10 inline-flex items-center justify-center rounded-lg transition-all duration-200 ${pathname === "/search"
+                ? "text-primary bg-primary/10"
+                : solid
+                  ? "text-foreground hover:text-primary hover:bg-muted"
+                  : "text-white hover:text-primary hover:bg-white/10"
+                }`}
+            >
+              <Search className="w-5 h-5" />
+            </Link>
+            <Link
               href={CTA_PATH}
               className={`ml-2 px-4 py-2 rounded-lg font-semibold text-sm transition-all duration-200 ${pathname === CTA_PATH
                 ? "bg-amber-500 text-slate-950"
@@ -96,15 +108,25 @@ export default function Header({ transparent = false }) {
             </Link>
           </nav>
 
-          <button
-            type="button"
-            aria-label="Toggle menu"
-            className={`md:hidden h-10 w-10 inline-flex items-center justify-center rounded-lg hover:bg-muted ${solid ? "text-foreground" : "text-white"
-              }`}
-            onClick={() => setIsMenuOpen((v) => !v)}
-          >
-            {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-          </button>
+          <div className="md:hidden flex items-center">
+            <Link
+              href="/search"
+              aria-label="Search"
+              className={`h-10 w-10 inline-flex items-center justify-center rounded-lg hover:bg-muted ${solid ? "text-foreground" : "text-white"
+                }`}
+            >
+              <Search className="w-5 h-5" />
+            </Link>
+            <button
+              type="button"
+              aria-label="Toggle menu"
+              className={`h-10 w-10 inline-flex items-center justify-center rounded-lg hover:bg-muted ${solid ? "text-foreground" : "text-white"
+                }`}
+              onClick={() => setIsMenuOpen((v) => !v)}
+            >
+              {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            </button>
+          </div>
         </div>
       </div>
 
