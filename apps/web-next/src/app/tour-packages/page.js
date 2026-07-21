@@ -1,22 +1,54 @@
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import ItineraryCard from "@/components/ItineraryCard";
 import Breadcrumbs from "@/components/Breadcrumbs";
 import JsonLd from "@/components/JsonLd";
-import { getPublicItineraries } from "@/lib/actions/itineraries";
-import { SITE_URL } from "@/lib/constants";
 import TrackPageView from "@/components/TrackPageView";
+import { PackageFilterBar } from "@/components/PackageFilterBar";
+import PackagesInfiniteGrid from "@/components/PackagesInfiniteGrid";
+import { getPackagesPage, getPackageFilterOptions } from "@/lib/actions/listings";
+import { parseListParam } from "@/lib/searchParamsUtil";
+import { SITE_URL } from "@/lib/constants";
 
 export const revalidate = 3600;
 
-export const metadata = {
-  title: "Tour Packages",
-  description: "Curated multi-day tour packages across India's most breathtaking destinations, planned end-to-end by QuickTrails.",
-  alternates: { canonical: "/tour-packages" },
-};
+const PAGE_SIZE = 12;
 
-export default async function PackagesPage() {
-  const itineraries = await getPublicItineraries();
+function parseFilters(params) {
+  return {
+    destinations: parseListParam(params.destinations),
+    duration: params.duration || undefined,
+    sort: params.sort || "newest",
+  };
+}
+
+function isFiltered(filters) {
+  return filters.destinations.length > 0 || !!filters.duration;
+}
+
+export async function generateMetadata({ searchParams }) {
+  const params = await searchParams;
+  const filters = parseFilters(params);
+
+  if (isFiltered(filters)) {
+    return { title: "Tour Packages", robots: { index: false } };
+  }
+
+  return {
+    title: "Tour Packages",
+    description: "Curated multi-day tour packages across India's most breathtaking destinations, planned end-to-end by QuickTrails.",
+    alternates: { canonical: "/tour-packages" },
+  };
+}
+
+export default async function PackagesPage({ searchParams }) {
+  const params = await searchParams;
+  const filters = parseFilters(params);
+  const filtered = isFiltered(filters);
+
+  const [{ items: itineraries, hasMore }, filterOptions] = await Promise.all([
+    getPackagesPage({ filters, skip: 0, limit: PAGE_SIZE }),
+    getPackageFilterOptions(),
+  ]);
 
   const itemListSchema = {
     "@context": "https://schema.org",
@@ -44,19 +76,20 @@ export default async function PackagesPage() {
           <Breadcrumbs items={[{ name: "Home", path: "/" }, { name: "Tour Packages", path: "/tour-packages" }]} />
 
           <h1 className="text-4xl md:text-5xl font-bold mb-4 text-balance">All tour packages</h1>
-          <p className="text-xl text-muted-foreground max-w-2xl mb-12">
-            Curated journeys designed to create memories that last a lifetime.
+          <p className="text-xl text-muted-foreground max-w-2xl mb-8">
+            {filtered
+              ? "Results matching your filters."
+              : "Curated journeys designed to create memories that last a lifetime."}
           </p>
 
-          {itineraries.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {itineraries.map((itinerary) => (
-                <ItineraryCard key={itinerary._id} itinerary={itinerary} />
-              ))}
-            </div>
-          ) : (
-            <p className="text-center text-muted-foreground py-12">No packages available at the moment.</p>
-          )}
+          <PackageFilterBar options={filterOptions} />
+
+          <PackagesInfiniteGrid
+            key={JSON.stringify(filters)}
+            initialItems={itineraries}
+            initialHasMore={hasMore}
+            filters={filters}
+          />
         </div>
       </div>
       <Footer />

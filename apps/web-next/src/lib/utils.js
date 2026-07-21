@@ -23,3 +23,7 @@ export const PRICE_UNIT_OPTIONS = [
   { value: "night", label: "Per night (per room)" },
   { value: "person_per_day", label: "Per day, per head" },
 ];
+
+export function titleCase(str) {
+  return str.replace(/\b\w/g, (c) => c.toUpperCase());
+}
