@@ -47,7 +47,7 @@ export async function generateMetadata({ searchParams }) {
     return {
       title: `Hotels & Stays in ${label}`,
       description: `Browse handpicked hotels, resorts and homestays in ${label} with QuickTrails.`,
-      robots: { index: false },
+      alternates: { canonical: `/properties?location=${encodeURIComponent(singleLocation)}` },
     };
   }
 
